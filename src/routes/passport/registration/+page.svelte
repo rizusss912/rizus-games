@@ -1,0 +1,1 @@
+<div>registration page</div>
