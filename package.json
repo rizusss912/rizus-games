@@ -36,6 +36,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@sveltejs/adapter-node": "^1.0.0"
+		"@sveltejs/adapter-node": "^1.0.0",
+		"normalize.css": "^8.0.1"
 	}
 }
