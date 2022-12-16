@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
-    const PASSWORD_MIN_LENGTH = 6;
-    const PASSWORD_MAX_LENGTH = 100;
+	import Form from "$lib/form/form.svelte";
+	import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "../form.const";
 </script>
 
-<form>
+<Form>
     <input
         type="text"
         name="login"
@@ -11,8 +11,8 @@
         placeholder="Логин"
         autocomplete="username"
         required
-        minlength="5"
-        maxlength="50"
+        minlength={LOGIN_MIN_LENGTH}
+        maxlength={LOGIN_MAX_LENGTH}
         autofocus
         />
     <input
@@ -36,13 +36,4 @@
         required
         />
     <input type="submit" value="Зарегистрироваться" accesskey="s">
-</form>
-
-<style>
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        width: 300px;
-    }
-</style>
+</Form>
