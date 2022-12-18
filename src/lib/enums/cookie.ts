@@ -1,3 +1,4 @@
 export enum Cookies {
-    ANONYMOUS_ID = 'anonymousId',
+	ACCESS_TOKEN = 'accessToken',
+	REFRESH_TOKEN = 'refreshToken'
 }
