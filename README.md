@@ -39,3 +39,8 @@ You can preview the production build with `npm run preview`.
 
 //https://cloud.yandex.ru/docs/cli/quickstart
 //https://brew.sh/index_ru
+
+mkdir --parents ~/.postgresql && \
+wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" \
+ --output-document ~/.postgresql/root.crt && \
+chmod 0600 ~/.postgresql/root.crt

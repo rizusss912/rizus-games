@@ -1,15 +1,9 @@
-import { Cookies } from '$lib/enums/cookie';
 import { selectFormData } from '$lib/utils/form';
 import { error } from '@sveltejs/kit';
 import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
-import {
-	createAccessToken,
-	createRefreshToken,
-	getPassportOnAuthRedirect
-} from '../../../passport.utils';
+import { getPassportOnAuthRedirect } from '../../../passport.utils';
 import type { Actions } from './$types';
-import { ACCESS_TOKEN_LIFETIME_SEC, REFRESH_TOKEN_LIFETIME_SEC } from 'src/routes/passport/consts';
-import { AuthorizationService } from 'src/routes/passport/authorization.service';
+import { AuthorizationService } from '../../../authorization-service';
 
 interface AnonymousFormData extends Record<string, string | null> {
 	login: string | null;
@@ -35,7 +29,7 @@ export const actions: Actions = {
 
 		validateData(anonymousData);
 
-		AuthorizationService.registration()
+		AuthorizationService.registration(event);
 
 		throw getPassportOnAuthRedirect(event);
 	}

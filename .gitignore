@@ -5,6 +5,7 @@ node_modules
 /package
 .env
 .env.*
+passport-pg.crt
 !.env.example
 .vercel
 .output

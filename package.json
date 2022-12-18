@@ -39,6 +39,9 @@
 	"dependencies": {
 		"@sveltejs/adapter-node": "^1.0.0",
 		"jsonwebtoken": "^8.5.1",
-		"normalize.css": "^8.0.1"
+		"knex": "^2.3.0",
+		"normalize.css": "^8.0.1",
+		"objection": "^3.0.1",
+		"pg": "^8.8.0"
 	}
 }
