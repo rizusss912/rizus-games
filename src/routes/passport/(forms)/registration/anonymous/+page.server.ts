@@ -29,7 +29,7 @@ export const actions: Actions = {
 
 		validateData(anonymousData);
 
-		AuthorizationService.registration(event);
+		await AuthorizationService.registrationAnonimus(event, anonymousData.login!);
 
 		throw getPassportOnAuthRedirect(event);
 	}

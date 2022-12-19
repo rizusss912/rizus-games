@@ -9,6 +9,8 @@ export class User extends BasePassport {
 		ID: User.idColumn
 	};
 
+	public id!: number;
+
 	static jsonSchema = {
 		type: 'object',
 		required: Object.values(User.columns),

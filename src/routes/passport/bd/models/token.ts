@@ -1,3 +1,4 @@
+import type { Transaction } from 'objection';
 import { BasePassport } from './base-passport';
 import { User } from './user';
 import { UserToken } from './user-token';
@@ -7,6 +8,13 @@ export enum TokenType {
 	REFRESH = 'refresh'
 }
 
+export type CreateTokenData = {
+	user: User;
+	transaction: Transaction;
+	type: TokenType;
+	passiveUserIds: number[];
+};
+
 export class Token extends BasePassport {
 	static tableName = 'tokens';
 	static idColumn = 'id';
@@ -14,6 +22,9 @@ export class Token extends BasePassport {
 		ID: Token.idColumn,
 		TYPE: 'type'
 	};
+
+	public id!: number;
+	public type!: TokenType;
 
 	static jsonSchema = {
 		type: 'object',
@@ -31,7 +42,7 @@ export class Token extends BasePassport {
 	static get relationMappings() {
 		return {
 			[User.tableName]: {
-				relation: Token.ManyToManyRelation,
+				relation: User.ManyToManyRelation,
 				modelClass: Token,
 				join: {
 					from: `${Token.tableName}.${Token.columns.ID}`,
@@ -43,5 +54,30 @@ export class Token extends BasePassport {
 				}
 			}
 		};
+	}
+
+	static async createToken({ user, transaction, type, passiveUserIds }: CreateTokenData) {
+		const token = await Token.query(transaction).insert({ [Token.columns.TYPE]: type });
+		const generalTokenData = {
+			[UserToken.columns.TOKEN_ID]: token.id
+		};
+		const activeUserTokenData = {
+			...generalTokenData,
+			[UserToken.columns.USER_ID]: user.id,
+			[UserToken.columns.IS_ACTIVE_USER]: true
+		};
+		const passiveUserTokenDataList = passiveUserIds.map((userId) => ({
+			...generalTokenData,
+			[UserToken.columns.USER_ID]: userId,
+			[UserToken.columns.IS_ACTIVE_USER]: false
+		}));
+
+		await Promise.all(
+			[activeUserTokenData, ...passiveUserTokenDataList].map((data) =>
+				token.$relatedQuery(UserToken.tableName, transaction).insert(data)
+			)
+		);
+
+		return token;
 	}
 }

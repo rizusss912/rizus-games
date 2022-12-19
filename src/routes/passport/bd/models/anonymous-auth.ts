@@ -41,4 +41,25 @@ export class AnonymousAuth extends BasePassport {
 			}
 		};
 	}
+
+	static async createUserWithAnonymousAuth(login: string) {
+		const transaction = await AnonymousAuth.startTransaction();
+
+		try {
+			const user = await User.query(transaction).insert();
+			const authData = {
+				[AnonymousAuth.columns.USER_ID]: user.id,
+				[AnonymousAuth.columns.LOGIN]: login
+			};
+			const anonymousAuth = await user
+				.$relatedQuery(AnonymousAuth.tableName, transaction)
+				.insert(authData);
+
+			transaction.commit();
+			return { user, anonymousAuth };
+		} catch (error) {
+			transaction.rollback();
+			throw error;
+		}
+	}
 }
