@@ -1,8 +1,9 @@
-import { BasePassport } from './base-passport';
+import { AnonymousAuth } from './anonymous-auth';
+import { PassportModel } from './passport-model';
 import { Token } from './token';
 import { UserToken } from './user-token';
 
-export class User extends BasePassport {
+export class User extends PassportModel {
 	static tableName = 'users';
 	static idColumn = 'id';
 	static columns = {
@@ -13,10 +14,10 @@ export class User extends BasePassport {
 
 	static jsonSchema = {
 		type: 'object',
-		required: Object.values(User.columns),
-		[User.columns.ID]: {
-			type: 'integer',
-			unique: true
+		properties: {
+			[User.columns.ID]: {
+				type: 'integer'
+			}
 		}
 	};
 

@@ -1,5 +1,6 @@
 import knex, { Knex } from 'knex';
-import { BasePassport } from './models/base-passport';
+import { knexSnakeCaseMappers } from 'objection';
+import { PassportModel } from './models/passport-model';
 
 let connectPassortBDPromise: Promise<Knex> | undefined;
 
@@ -18,10 +19,11 @@ export function connectPassortBD(): Promise<Knex> {
 					ssl: {
 						rejectUnauthorized: false
 					}
-				}
+				},
+				...knexSnakeCaseMappers()
 			});
 
-			BasePassport.knex(passportPG);
+			PassportModel.knex(passportPG);
 			resolve(passportPG);
 		} catch (error) {
 			reject(error);

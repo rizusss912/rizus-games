@@ -1,5 +1,7 @@
+import { error } from '@sveltejs/kit';
+import type { JwtPayload } from 'jsonwebtoken';
 import type { Transaction } from 'objection';
-import { BasePassport } from './base-passport';
+import { PassportModel } from './passport-model';
 import { User } from './user';
 import { UserToken } from './user-token';
 
@@ -9,13 +11,26 @@ export enum TokenType {
 }
 
 export type CreateTokenData = {
-	user: User;
-	transaction: Transaction;
+	userId: number;
 	type: TokenType;
+	passiveUserIds: number[];
+	transaction: Transaction;
+};
+export type DeleteTokenByIdData = {
+	tokenId: number;
+	transaction: Transaction;
+};
+
+export type AuthResult = {
+	userId: number;
 	passiveUserIds: number[];
 };
 
-export class Token extends BasePassport {
+export interface TokenPayload extends JwtPayload, AuthResult {
+	jti: number;
+}
+
+export class Token extends PassportModel {
 	static tableName = 'tokens';
 	static idColumn = 'id';
 	static columns = {
@@ -28,14 +43,15 @@ export class Token extends BasePassport {
 
 	static jsonSchema = {
 		type: 'object',
-		required: Object.values(Token.columns),
-		[Token.columns.ID]: {
-			type: 'integer',
-			unique: true
-		},
-		[Token.columns.TYPE]: {
-			type: 'sting',
-			enum: Object.values(TokenType)
+		required: Object.values([Token.columns.TYPE]),
+		properties: {
+			[Token.columns.ID]: {
+				type: 'integer'
+			},
+			[Token.columns.TYPE]: {
+				type: 'string',
+				enum: Object.values(TokenType)
+			}
 		}
 	};
 
@@ -52,18 +68,64 @@ export class Token extends BasePassport {
 					},
 					to: `${User.tableName}.${User.columns.ID}`
 				}
+			},
+			[UserToken.tableName]: {
+				relation: User.HasOneRelation,
+				modelClass: UserToken,
+				join: {
+					from: `${Token.tableName}.${Token.columns.ID}`,
+					to: `${UserToken.tableName}.${UserToken.columns.TOKEN_ID}`
+				}
 			}
 		};
 	}
 
-	static async createToken({ user, transaction, type, passiveUserIds }: CreateTokenData) {
+	static async verifyTokenById(tokenId: number): Promise<Token | null> {
+		return (await Token.getTokenById(tokenId)) ?? null;
+	}
+
+	static async getTokenById(tokenId: number): Promise<Token | null> {
+		return (await Token.query().findById(tokenId)) ?? null;
+	}
+
+	async getPayload(): Promise<TokenPayload> {
+		const usersTokens = await UserToken.query()
+			.select('*')
+			.where(UserToken.columns.TOKEN_ID, '=', this.id);
+
+		let activeUserId: number | undefined;
+		let passiveUserIds: number[] = [];
+
+		for (const { userId, isActiveUser } of usersTokens) {
+			if (isActiveUser) {
+				activeUserId = userId;
+			} else {
+				passiveUserIds.push(userId);
+			}
+		}
+
+		if (!activeUserId) {
+			throw error(500, 'не удалось получить id пользователя');
+		}
+
+		return { jti: this.id, userId: activeUserId, passiveUserIds };
+	}
+
+	static async deleteTokenById({ tokenId, transaction }: DeleteTokenByIdData) {
+		await Promise.all([
+			UserToken.query(transaction).delete().where(UserToken.columns.TOKEN_ID, '=', tokenId),
+			Token.query(transaction).deleteById(tokenId)
+		]);
+	}
+
+	static async createToken({ userId, transaction, type, passiveUserIds }: CreateTokenData) {
 		const token = await Token.query(transaction).insert({ [Token.columns.TYPE]: type });
 		const generalTokenData = {
 			[UserToken.columns.TOKEN_ID]: token.id
 		};
 		const activeUserTokenData = {
 			...generalTokenData,
-			[UserToken.columns.USER_ID]: user.id,
+			[UserToken.columns.USER_ID]: userId,
 			[UserToken.columns.IS_ACTIVE_USER]: true
 		};
 		const passiveUserTokenDataList = passiveUserIds.map((userId) => ({

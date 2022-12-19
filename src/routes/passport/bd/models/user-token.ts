@@ -1,8 +1,8 @@
-import { BasePassport } from './base-passport';
+import { PassportModel } from './passport-model';
 import { Token } from './token';
 import { User } from './user';
 
-export class UserToken extends BasePassport {
+export class UserToken extends PassportModel {
 	static tableName = 'usersTokens';
 	static idColumn = 'id';
 	static columns = {
@@ -12,21 +12,30 @@ export class UserToken extends BasePassport {
 		IS_ACTIVE_USER: 'isActiveUser'
 	};
 
+	static userId: number;
+	static tokenId: number;
+	static isActiveUser: boolean;
+
 	static jsonSchema = {
 		type: 'object',
-		required: Object.values(UserToken.columns),
-		[UserToken.columns.ID]: {
-			type: 'integer',
-			unique: true
-		},
-		[UserToken.columns.USER_ID]: {
-			type: 'integer'
-		},
-		[UserToken.columns.TOKEN_ID]: {
-			type: 'integer'
-		},
-		[UserToken.columns.IS_ACTIVE_USER]: {
-			type: 'boolean'
+		required: Object.values([
+			UserToken.columns.IS_ACTIVE_USER,
+			UserToken.columns.TOKEN_ID,
+			UserToken.columns.USER_ID
+		]),
+		properties: {
+			[UserToken.columns.ID]: {
+				type: 'integer'
+			},
+			[UserToken.columns.USER_ID]: {
+				type: 'integer'
+			},
+			[UserToken.columns.TOKEN_ID]: {
+				type: 'integer'
+			},
+			[UserToken.columns.IS_ACTIVE_USER]: {
+				type: 'boolean'
+			}
 		}
 	};
 
