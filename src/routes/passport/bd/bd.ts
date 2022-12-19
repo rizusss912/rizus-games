@@ -1,5 +1,5 @@
 import knex, { Knex } from 'knex';
-import { BasePassport } from './models/base-passport.model';
+import { BasePassport } from './models/base-passport';
 
 let connectPassortBDPromise: Promise<Knex> | undefined;
 

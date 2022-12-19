@@ -1,4 +1,6 @@
-import { BasePassport } from './base-passport.model';
+import { BasePassport } from './base-passport';
+import { Token } from './token';
+import { UserToken } from './user-token';
 
 export class User extends BasePassport {
 	static tableName = 'users';
@@ -9,9 +11,27 @@ export class User extends BasePassport {
 
 	static jsonSchema = {
 		type: 'object',
-		required: [User.columns.ID],
+		required: Object.values(User.columns),
 		[User.columns.ID]: {
-			type: 'integer'
+			type: 'integer',
+			unique: true
 		}
 	};
+
+	static get relationMappings() {
+		return {
+			[Token.tableName]: {
+				relation: Token.ManyToManyRelation,
+				modelClass: Token,
+				join: {
+					from: `${User.tableName}.${User.columns.ID}`,
+					through: {
+						from: `${UserToken.tableName}.${UserToken.columns.USER_ID}`,
+						to: `${UserToken.tableName}.${UserToken.columns.TOKEN_ID}`
+					},
+					to: `${Token.tableName}.${Token.columns.ID}`
+				}
+			}
+		};
+	}
 }
