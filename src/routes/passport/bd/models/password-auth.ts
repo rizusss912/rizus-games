@@ -16,6 +16,11 @@ type AddPasswordAuthForUserData = {
 	password: string;
 };
 
+type GetUserByLoginAndPasswordData = {
+	login: string;
+	password: string;
+};
+
 export class PasswordAuth extends Auth {
 	static tableName = 'passwordsAuths';
 	static idColumn = 'id';
@@ -25,8 +30,8 @@ export class PasswordAuth extends Auth {
 		PASSWORD_HASH: 'passwordHash'
 	};
 
-	static passwordHash: string;
-	static checkPassword(password: string): boolean {
+	passwordHash!: string;
+	checkPassword(password: string): boolean {
 		return compareSync(password, this.passwordHash);
 	}
 
@@ -78,5 +83,13 @@ export class PasswordAuth extends Auth {
 		};
 
 		return await PasswordAuth.query(transaction).insert(authData);
+	}
+
+	public static async getPasswordAuthByLogin({
+		login
+	}: {
+		login: string;
+	}): Promise<PasswordAuth | null> {
+		return (await PasswordAuth.query().findOne(PasswordAuth.columns.LOGIN, '=', login)) ?? null;
 	}
 }

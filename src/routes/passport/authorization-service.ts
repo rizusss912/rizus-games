@@ -41,14 +41,63 @@ export type RegistrationData = {
 	transaction: Transaction;
 };
 
-export class AuthorizationService {
-	static async registrationByPassword({ event, login, transaction, password }: RegistrationData) {
-		const refreshToken = await AuthorizationService.getValidToken({
-			event,
-			type: TokenType.REFRESH
-		});
+export type AddActiveUserForAuthData = {
+	refreshToken: Token;
+	event: RequestEvent;
+	transaction: Transaction;
+	userId: number;
+};
 
-		if (!refreshToken) {
+export type LoginData = {
+	login: string;
+	password: string;
+	event: RequestEvent;
+	transaction: Transaction;
+};
+export type GetTokensAndMaybeRefreshData = {
+	event: RequestEvent;
+	transaction: Transaction;
+};
+
+export type Tokens = { accessToken: Token; refreshToken: Token };
+
+export class AuthorizationService {
+	static async login({ event, login, transaction, password }: LoginData) {
+		const passwordAuth = await PasswordAuth.getPasswordAuthByLogin({ login });
+
+		if (!passwordAuth) {
+			throw error(400, 'неверный логин');
+		}
+
+		if (!passwordAuth.checkPassword(password)) {
+			throw error(400, 'неверный пароль');
+		}
+
+		const { userId } = passwordAuth;
+		const tokens = await AuthorizationService.getTokensAndMaybeRefresh({ event, transaction });
+
+		if (!tokens) {
+			await AuthorizationService.createAndSetTokens({
+				event,
+				userId,
+				transaction,
+				passiveUserIds: []
+			});
+			return;
+		}
+
+		await AuthorizationService.addActiveUserForAuth({
+			refreshToken: tokens.refreshToken,
+			event,
+			transaction,
+			userId
+		});
+	}
+
+	static async registrationByPassword({ event, login, transaction, password }: RegistrationData) {
+		const tokens = await AuthorizationService.getTokensAndMaybeRefresh({ event, transaction });
+
+		if (!tokens) {
 			const { user } = await PasswordAuth.createUserWithPasswordAuth({
 				transaction,
 				password,
@@ -63,7 +112,7 @@ export class AuthorizationService {
 			return;
 		}
 
-		const { userId, passiveUserIds, jti } = await refreshToken.getPayload();
+		const { userId, passiveUserIds, jti } = await tokens.accessToken.getPayload();
 		const auhs = await User.getAuthsById(userId);
 
 		if (auhs[AuthType.PASSWORD]) {
@@ -73,12 +122,11 @@ export class AuthorizationService {
 				login
 			});
 
-			await AuthorizationService.refreshTokens({
+			await AuthorizationService.addActiveUserForAuth({
 				event,
 				transaction,
 				userId: user.id,
-				passiveUserIds: [userId, ...passiveUserIds],
-				jti
+				refreshToken: tokens.refreshToken
 			});
 		} else if (auhs[AuthType.ANONYMOUS]) {
 			await PasswordAuth.createPasswordAuthForUser({
@@ -101,30 +149,42 @@ export class AuthorizationService {
 		});
 	}
 
-	static login(event: RequestEvent) {
-		//AuthorizationService.createAndSetTokens(event, { userId: 1 });
-	}
-
 	static async auth({ event, transaction }: AuthData): Promise<AuthResult> {
-		const { accessToken, refreshToken } = await AuthorizationService.getTokens(event);
+		const tokens = await AuthorizationService.getTokensAndMaybeRefresh({
+			event,
+			transaction
+		});
 
-		if (accessToken) {
-			const payload = await accessToken.getPayload();
-			return await AuthorizationService.getAuthResultByTokenPayload(payload);
-		}
-
-		if (!refreshToken) {
+		if (!tokens) {
 			throw error(403, 'Не авторизован');
 		}
 
-		const payload = await refreshToken.getPayload();
-		await AuthorizationService.refreshTokens({
+		const payload = await tokens.accessToken.getPayload();
+		return await AuthorizationService.getAuthResultByTokenPayload(payload);
+	}
+
+	private static async getTokensAndMaybeRefresh({
+		event,
+		transaction
+	}: GetTokensAndMaybeRefreshData): Promise<Tokens | null> {
+		let { accessToken, refreshToken } = await AuthorizationService.getTokens(event);
+
+		if (accessToken && refreshToken) {
+			return { accessToken, refreshToken };
+		}
+
+		const token = accessToken ?? refreshToken;
+
+		if (!token) {
+			return null;
+		}
+
+		const payload = await token.getPayload();
+		return await AuthorizationService.refreshTokens({
 			event,
 			transaction,
 			...payload
 		});
-
-		return await AuthorizationService.getAuthResultByTokenPayload(payload);
 	}
 
 	private static async getTokens(event: RequestEvent) {
@@ -133,6 +193,22 @@ export class AuthorizationService {
 			AuthorizationService.getValidToken({ event, type: TokenType.REFRESH })
 		]);
 		return { accessToken, refreshToken };
+	}
+
+	private static async addActiveUserForAuth({
+		event,
+		refreshToken,
+		transaction,
+		userId
+	}: AddActiveUserForAuthData) {
+		const { passiveUserIds, jti } = await refreshToken.getPayload();
+		await AuthorizationService.refreshTokens({
+			event,
+			transaction,
+			userId,
+			passiveUserIds: [userId, ...passiveUserIds],
+			jti
+		});
 	}
 
 	private static async getAuthResultByTokenPayload({
