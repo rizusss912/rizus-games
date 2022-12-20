@@ -8,7 +8,7 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 	try {
 		const authData = await AuthorizationService.auth({ event, transaction });
 		await transaction.commit();
-		return authData;
+		return new Response(JSON.stringify(authData));
 	} catch (error) {
 		await transaction.rollback();
 		throw error;

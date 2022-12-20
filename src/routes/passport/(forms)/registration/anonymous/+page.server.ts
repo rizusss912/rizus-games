@@ -1,10 +1,12 @@
 import { selectFormData } from '$lib/utils/form';
-import { error } from '@sveltejs/kit';
+import { error, redirect, type RequestEvent } from '@sveltejs/kit';
 import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
-import { getPassportOnAuthRedirect } from '../../../passport.utils';
+import { auth, getPassportOnAuthRedirect } from '../../../passport.utils';
 import type { Actions } from './$types';
 import { AuthorizationService } from '../../../authorization-service';
 import { PassportModel } from '../../../bd/models/passport-model';
+import { AuthType } from '$lib/enums/auth-type';
+import type { PageServerLoad } from '../$types';
 
 interface AnonymousFormData extends Record<string, string | null> {
 	login: string | null;
@@ -24,8 +26,27 @@ function validateData({ login }: AnonymousFormData) {
 	}
 }
 
+async function redirectToPasswordAuthIfHasAuth(event: RequestEvent) {
+	let authData;
+
+	try {
+		authData = await auth(event);
+	} catch {
+		return;
+	}
+
+	if (authData.userData.authTypes.includes(AuthType.PASSWORD)) {
+		throw redirect(307, '/passport/registration');
+	}
+}
+
+export const load: PageServerLoad = async (event: RequestEvent) => {
+	await redirectToPasswordAuthIfHasAuth(event);
+};
+
 export const actions: Actions = {
 	default: async function (event) {
+		await redirectToPasswordAuthIfHasAuth(event);
 		const anonymousData = await selectFormData<AnonymousFormData>(event);
 
 		validateData(anonymousData);

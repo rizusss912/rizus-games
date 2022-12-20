@@ -1,6 +1,5 @@
 import type { Transaction } from 'objection';
-import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../(forms)/form.const';
-import { PassportModel } from './passport-model';
+import { Auth } from './auth';
 import { User } from './user';
 
 type CreateUserWithAnonymousAuthData = {
@@ -8,30 +7,22 @@ type CreateUserWithAnonymousAuthData = {
 	login: string;
 };
 
-export class AnonymousAuth extends PassportModel {
+export class AnonymousAuth extends Auth {
 	static tableName = 'anonymousAuths';
 	static idColumn = 'id';
 	static columns = {
 		ID: AnonymousAuth.idColumn,
-		USER_ID: 'userId',
-		LOGIN: 'login'
+		...Auth.columns
 	};
 
 	static jsonSchema = {
 		type: 'object',
-		required: Object.values([AnonymousAuth.columns.LOGIN, AnonymousAuth.columns.USER_ID]),
+		required: [...Auth.jsonSchema.required],
 		properties: {
 			[AnonymousAuth.columns.ID]: {
 				type: 'integer'
 			},
-			[AnonymousAuth.columns.USER_ID]: {
-				type: 'integer'
-			},
-			[AnonymousAuth.columns.LOGIN]: {
-				type: 'string',
-				maxLength: LOGIN_MAX_LENGTH,
-				minLength: LOGIN_MIN_LENGTH
-			}
+			...Auth.jsonSchema.properties
 		}
 	};
 
@@ -41,7 +32,7 @@ export class AnonymousAuth extends PassportModel {
 				relation: AnonymousAuth.BelongsToOneRelation,
 				modelClass: User,
 				join: {
-					from: `${AnonymousAuth.tableName}${AnonymousAuth.columns.ID}`,
+					from: `${AnonymousAuth.tableName}${Auth.columns.USER_ID}`,
 					to: `${User.tableName}${User.columns.ID}`
 				}
 			}
@@ -54,12 +45,16 @@ export class AnonymousAuth extends PassportModel {
 	}: CreateUserWithAnonymousAuthData) {
 		const user = await User.query(transaction).insert({});
 		const authData = {
-			[AnonymousAuth.columns.USER_ID]: user.id,
-			[AnonymousAuth.columns.LOGIN]: login
+			[Auth.columns.USER_ID]: user.id,
+			[Auth.columns.LOGIN]: login
 		};
 
 		const anonymousAuth = await AnonymousAuth.query(transaction).insert(authData);
 
 		return { user, anonymousAuth };
+	}
+
+	static async getAuthByUserId(userId: number): Promise<Auth | null> {
+		return (await AnonymousAuth.query().findOne(AnonymousAuth.columns.USER_ID, '=', userId)) ?? null;
 	}
 }

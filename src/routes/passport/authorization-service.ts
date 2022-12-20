@@ -1,9 +1,12 @@
+import { AuthType } from '$lib/enums/auth-type';
 import { Cookies } from '$lib/enums/cookie';
-import { error, type RequestEvent } from '@sveltejs/kit';
+import { error, redirect, type RequestEvent } from '@sveltejs/kit';
 import { sign, verify } from 'jsonwebtoken';
 import type { Transaction } from 'objection';
 import { AnonymousAuth } from './bd/models/anonymous-auth';
+import { PasswordAuth } from './bd/models/password-auth';
 import { Token, TokenType, type AuthResult, type TokenPayload } from './bd/models/token';
+import { User } from './bd/models/user';
 
 const TOKEN_SECRET: Record<TokenType, string> = {
 	[TokenType.ACCESS]: process.env.ACCESS_TOKEN_SECRET!,
@@ -14,19 +17,16 @@ const TOKEN_COOKIE: Record<TokenType, Cookies> = {
 	[TokenType.REFRESH]: Cookies.REFRESH_TOKEN
 };
 const TOKEN_LIFETIME_SEC: Record<TokenType, number> = {
-	[TokenType.ACCESS]: 15 * 60, // 15 min
+	[TokenType.ACCESS]: 15, // 15 sec
 	[TokenType.REFRESH]: 90 * 24 * 60 * 60 // 90 days
 };
 
 type RegistrationAnonimusData = { event: RequestEvent; login: string; transaction: Transaction };
 type AuthData = { event: RequestEvent; transaction: Transaction };
-type RefreshTokensData = {
+interface RefreshTokensData extends TokenPayload {
 	event: RequestEvent;
-	refreshToken: Token;
-	passiveUserIds: number[];
-	userId: number;
 	transaction: Transaction;
-};
+}
 type GetValidTokenData = { event: RequestEvent; type: TokenType };
 export type CreateAndSetTokensData = {
 	event: RequestEvent;
@@ -34,8 +34,63 @@ export type CreateAndSetTokensData = {
 	passiveUserIds: number[];
 	transaction: Transaction;
 };
+export type RegistrationData = {
+	login: string;
+	password: string;
+	event: RequestEvent;
+	transaction: Transaction;
+};
 
 export class AuthorizationService {
+	static async registrationByPassword({ event, login, transaction, password }: RegistrationData) {
+		const refreshToken = await AuthorizationService.getValidToken({
+			event,
+			type: TokenType.REFRESH
+		});
+
+		if (!refreshToken) {
+			const { user } = await PasswordAuth.createUserWithPasswordAuth({
+				transaction,
+				password,
+				login
+			});
+			await AuthorizationService.createAndSetTokens({
+				event,
+				userId: user.id,
+				transaction,
+				passiveUserIds: []
+			});
+			return;
+		}
+
+		const { userId, passiveUserIds, jti } = await refreshToken.getPayload();
+		const auhs = await User.getAuthsById(userId);
+
+		if (auhs[AuthType.PASSWORD]) {
+			const { user } = await PasswordAuth.createUserWithPasswordAuth({
+				transaction,
+				password,
+				login
+			});
+
+			await AuthorizationService.refreshTokens({
+				event,
+				transaction,
+				userId: user.id,
+				passiveUserIds: [userId, ...passiveUserIds],
+				jti
+			});
+		} else if (auhs[AuthType.ANONYMOUS]) {
+			await PasswordAuth.createPasswordAuthForUser({
+				userId,
+				login,
+				password,
+				transaction
+			});
+			await AuthorizationService.refreshTokens({ event, transaction, userId, passiveUserIds, jti });
+		}
+	}
+
 	static async registrationAnonimus({ event, login, transaction }: RegistrationAnonimusData) {
 		const { user } = await AnonymousAuth.createUserWithAnonymousAuth({ login, transaction });
 		await AuthorizationService.createAndSetTokens({
@@ -51,36 +106,46 @@ export class AuthorizationService {
 	}
 
 	static async auth({ event, transaction }: AuthData): Promise<AuthResult> {
-		const [accessToken, refreshToken] = await Promise.all([
-			AuthorizationService.getValidToken({ event, type: TokenType.ACCESS }),
-			AuthorizationService.getValidToken({ event, type: TokenType.REFRESH })
-		]);
+		const { accessToken, refreshToken } = await AuthorizationService.getTokens(event);
 
 		if (accessToken) {
 			const payload = await accessToken.getPayload();
-
-			if (!payload) {
-				throw error(500, 'не удалось получить данные авторизации');
-			}
-
-			const { userId, passiveUserIds } = payload;
-			return { userId, passiveUserIds };
+			return await AuthorizationService.getAuthResultByTokenPayload(payload);
 		}
 
 		if (!refreshToken) {
 			throw error(403, 'Не авторизован');
 		}
 
-		const { passiveUserIds, userId } = await refreshToken.getPayload();
+		const payload = await refreshToken.getPayload();
 		await AuthorizationService.refreshTokens({
 			event,
-			refreshToken,
-			passiveUserIds,
-			userId,
-			transaction
+			transaction,
+			...payload
 		});
 
-		return { passiveUserIds, userId };
+		return await AuthorizationService.getAuthResultByTokenPayload(payload);
+	}
+
+	private static async getTokens(event: RequestEvent) {
+		const [accessToken, refreshToken] = await Promise.all([
+			AuthorizationService.getValidToken({ event, type: TokenType.ACCESS }),
+			AuthorizationService.getValidToken({ event, type: TokenType.REFRESH })
+		]);
+		return { accessToken, refreshToken };
+	}
+
+	private static async getAuthResultByTokenPayload({
+		userId,
+		passiveUserIds
+	}: TokenPayload): Promise<AuthResult> {
+		const users = await User.query().findByIds([userId, ...passiveUserIds]);
+		const userDataPromices = users.map((user) => user.getData()).reverse();
+		const [userData, ...passiveUsersData] = await Promise.all(userDataPromices);
+		return {
+			userData,
+			passiveUsersData
+		};
 	}
 
 	private static async getValidToken({ event, type }: GetValidTokenData): Promise<Token | null> {
@@ -112,14 +177,14 @@ export class AuthorizationService {
 
 	private static async refreshTokens({
 		event,
+		transaction,
 		userId,
 		passiveUserIds,
-		transaction,
-		refreshToken
+		jti
 	}: RefreshTokensData) {
 		const [newTokens] = await Promise.all([
 			AuthorizationService.createAndSetTokens({ event, userId, passiveUserIds, transaction }),
-			Token.query(transaction).deleteById(refreshToken.id)
+			Token.deleteTokenById({ tokenId: jti, transaction })
 		]);
 
 		return newTokens;

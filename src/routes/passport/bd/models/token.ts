@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { JwtPayload } from 'jsonwebtoken';
 import type { Transaction } from 'objection';
 import { PassportModel } from './passport-model';
-import { User } from './user';
+import { User, type UserData } from './user';
 import { UserToken } from './user-token';
 
 export enum TokenType {
@@ -22,12 +22,14 @@ export type DeleteTokenByIdData = {
 };
 
 export type AuthResult = {
-	userId: number;
-	passiveUserIds: number[];
+	userData: UserData;
+	passiveUsersData: UserData[];
 };
 
-export interface TokenPayload extends JwtPayload, AuthResult {
+export interface TokenPayload extends JwtPayload {
 	jti: number;
+	userId: number;
+	passiveUserIds: number[];
 }
 
 export class Token extends PassportModel {
