@@ -3,7 +3,7 @@ import { AnonymousAuth } from './anonymous-auth';
 import { Auth } from './auth';
 import { PassportModel } from './passport-model';
 import { PasswordAuth } from './password-auth';
-import { Token } from './token';
+import { Token, type AuthResult } from './token';
 import { UserToken } from './user-token';
 
 export type UserData = {
@@ -66,6 +66,10 @@ export class User extends PassportModel {
 				}
 			}
 		};
+	}
+
+	static async getUsersByUserIds(userIds: number[]): Promise<User[]> {
+		return await User.query().findByIds(userIds);
 	}
 
 	public async getData(): Promise<UserData> {

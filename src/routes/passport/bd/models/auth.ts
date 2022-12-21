@@ -28,4 +28,8 @@ export class Auth extends PassportModel {
 	static async getAuthByUserId(userId: number): Promise<Auth | null> {
 		throw Error('must be implemented in heirs');
 	}
+
+    static async getAuthByLogin(login: string): Promise<Auth | null> {
+		throw Error('must be implemented in heirs');
+	}
 }

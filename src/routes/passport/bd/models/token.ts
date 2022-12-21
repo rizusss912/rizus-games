@@ -1,4 +1,3 @@
-import { error } from '@sveltejs/kit';
 import type { JwtPayload } from 'jsonwebtoken';
 import type { Transaction } from 'objection';
 import { PassportModel } from './passport-model';
@@ -9,6 +8,11 @@ export enum TokenType {
 	ACCESS = 'access',
 	REFRESH = 'refresh'
 }
+
+type ActiveAndPassiveUserIds = {
+	userId: number | null;
+	passiveUserIds: number[];
+};
 
 export type CreateTokenData = {
 	userId: number;
@@ -83,44 +87,25 @@ export class Token extends PassportModel {
 	}
 
 	static async verifyTokenById(tokenId: number): Promise<Token | null> {
+		console.debug(`[Token] verifyTokenById ${tokenId}`);
 		return (await Token.getTokenById(tokenId)) ?? null;
 	}
 
 	static async getTokenById(tokenId: number): Promise<Token | null> {
+		console.debug(`[Token] getTokenById ${tokenId}`);
 		return (await Token.query().findById(tokenId)) ?? null;
 	}
 
-	async getPayload(): Promise<TokenPayload> {
-		const usersTokens = await UserToken.query()
-			.select('*')
-			.where(UserToken.columns.TOKEN_ID, '=', this.id);
-
-		let activeUserId: number | undefined;
-		let passiveUserIds: number[] = [];
-
-		for (const { userId, isActiveUser } of usersTokens) {
-			if (isActiveUser) {
-				activeUserId = userId;
-			} else {
-				passiveUserIds.push(userId);
-			}
-		}
-
-		if (!activeUserId) {
-			throw error(500, 'не удалось получить id пользователя');
-		}
-
-		return { jti: this.id, userId: activeUserId, passiveUserIds };
-	}
-
 	static async deleteTokenById({ tokenId, transaction }: DeleteTokenByIdData) {
+		console.debug(`[Token] deleteTokenById ${tokenId}`);
 		await Promise.all([
 			UserToken.query(transaction).delete().where(UserToken.columns.TOKEN_ID, '=', tokenId),
-			Token.query(transaction).deleteById(tokenId)
+			Token.query(transaction).delete().where(Token.columns.ID, '=', tokenId)
 		]);
 	}
 
 	static async createToken({ userId, transaction, type, passiveUserIds }: CreateTokenData) {
+		console.debug(`[Token] createToken. userId: ${userId}, type: ${type}`);
 		const token = await Token.query(transaction).insert({ [Token.columns.TYPE]: type });
 		const generalTokenData = {
 			[UserToken.columns.TOKEN_ID]: token.id
@@ -143,5 +128,21 @@ export class Token extends PassportModel {
 		);
 
 		return token;
+	}
+
+	public async getUsersTokens(): Promise<UserToken[]> {
+		console.debug(`[Token] getUsersTokens. tokenId: ${this.id}`);
+		return await UserToken.query().where(UserToken.columns.TOKEN_ID, '=', this.id);
+	}
+
+	public async getActiveAndPassiveUserIds(): Promise<ActiveAndPassiveUserIds> {
+		console.debug(`[Token] getActiveAndPassiveUserIds. tokenId: ${this.id}`);
+		const usersTokens = await this.getUsersTokens();
+		return {
+			userId: usersTokens.find((userToken) => userToken.isActiveUser)?.userId ?? null,
+			passiveUserIds: usersTokens
+				.filter((userToken) => !userToken.isActiveUser)
+				.map((userToken) => userToken.userId)
+		};
 	}
 }

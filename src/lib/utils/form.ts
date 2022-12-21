@@ -4,7 +4,7 @@ async function getFormData(event: RequestEvent) {
 	try {
 		return await event.request.formData();
 	} catch {
-		throw error(400, 'Error when parsing form data');
+		throw error(401, 'Error when parsing form data');
 	}
 }
 

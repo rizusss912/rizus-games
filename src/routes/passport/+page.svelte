@@ -10,3 +10,7 @@
     {userData.id}
     {userData.login}
 {/each}
+
+<form>
+<input type="submit" value="выйти из всех" formaction="passport/loginout" formmethod="POST"/>
+</form>

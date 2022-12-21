@@ -45,7 +45,8 @@ async function createPasswordAuthsTable(knex: Knex) {
 			.string(Auth.columns.LOGIN)
 			.notNullable()
 			.checkLength('>=', LOGIN_MIN_LENGTH)
-			.checkLength('<=', LOGIN_MAX_LENGTH);
+			.checkLength('<=', LOGIN_MAX_LENGTH)
+			.unique();
 		passwordAuth.string(PasswordAuth.columns.PASSWORD_HASH).notNullable();
 		passwordAuth.timestamps();
 	});

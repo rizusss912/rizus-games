@@ -12,9 +12,9 @@ export class UserToken extends PassportModel {
 		IS_ACTIVE_USER: 'isActiveUser'
 	};
 
-	static userId: number;
-	static tokenId: number;
-	static isActiveUser: boolean;
+	userId!: number;
+	tokenId!: number;
+	isActiveUser!: boolean;
 
 	static jsonSchema = {
 		type: 'object',

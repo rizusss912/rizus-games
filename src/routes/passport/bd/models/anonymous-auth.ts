@@ -54,7 +54,13 @@ export class AnonymousAuth extends Auth {
 		return { user, anonymousAuth };
 	}
 
+	static async getAuthByLogin(login: string): Promise<Auth | null> {
+		return (await AnonymousAuth.query().findOne(AnonymousAuth.columns.LOGIN, '=', login)) ?? null;
+	}
+
 	static async getAuthByUserId(userId: number): Promise<Auth | null> {
-		return (await AnonymousAuth.query().findOne(AnonymousAuth.columns.USER_ID, '=', userId)) ?? null;
+		return (
+			(await AnonymousAuth.query().findOne(AnonymousAuth.columns.USER_ID, '=', userId)) ?? null
+		);
 	}
 }

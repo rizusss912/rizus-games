@@ -59,12 +59,21 @@ export class PasswordAuth extends Auth {
 		};
 	}
 
+	static async getAuthByLogin(login: string): Promise<Auth | null> {
+		return (await PasswordAuth.query().findOne(PasswordAuth.columns.LOGIN, '=', login)) ?? null;
+	}
+
 	static async getAuthByUserId(userId: number): Promise<Auth | null> {
 		return (await PasswordAuth.query().findOne(PasswordAuth.columns.USER_ID, '=', userId)) ?? null;
 	}
 
+	static async getAuthsByUserIds(userIds: number[]): Promise<Auth[]> {
+		return await PasswordAuth.query().whereIn(PasswordAuth.columns.USER_ID, userIds);
+	}
+
 	static async createUserWithPasswordAuth(data: AddPasswordAuthForUserData) {
 		const user = await User.query(data.transaction).insert({});
+
 		const passwordAuth = await PasswordAuth.createPasswordAuthForUser({ ...data, userId: user.id });
 
 		return { user, passwordAuth };

@@ -19,6 +19,7 @@ export function getPassportOnAuthRedirect(event: RequestEvent): Redirect {
 	const isInitiatorValid = !!initiator && isUrl(initiator);
 	const location = isInitiatorValid ? initiator : DEFAULT_PASSPORT_REDIRECT;
 
+	console.debug(`on auth redirect to: ${initiator ?? 'default passport page'}`);
 	return redirect(307, location);
 }
 
@@ -43,6 +44,7 @@ export async function auth({
 	}
 
 	if (authResponse.status === 403) {
+		console.debug(`[auth utils] ERROR 403. redirect to /passport/login`);
 		throw redirect(307, '/passport/login');
 	}
 
