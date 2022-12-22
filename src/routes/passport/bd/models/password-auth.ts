@@ -16,11 +16,6 @@ type AddPasswordAuthForUserData = {
 	password: string;
 };
 
-type GetUserByLoginAndPasswordData = {
-	login: string;
-	password: string;
-};
-
 export class PasswordAuth extends Auth {
 	static tableName = 'passwordsAuths';
 	static idColumn = 'id';
@@ -60,18 +55,24 @@ export class PasswordAuth extends Auth {
 	}
 
 	static async getAuthByLogin(login: string): Promise<Auth | null> {
+		console.debug(`[PasswordAuth] getAuthByLogin. login: ${login}`);
 		return (await PasswordAuth.query().findOne(PasswordAuth.columns.LOGIN, '=', login)) ?? null;
 	}
 
 	static async getAuthByUserId(userId: number): Promise<Auth | null> {
+		console.debug(`[PasswordAuth] getAuthByUserId. userId: ${userId}`);
 		return (await PasswordAuth.query().findOne(PasswordAuth.columns.USER_ID, '=', userId)) ?? null;
 	}
 
 	static async getAuthsByUserIds(userIds: number[]): Promise<Auth[]> {
+		console.debug(`[PasswordAuth] getAuthsByUserIds. userIds: ${userIds.toString() || '[]'}`);
 		return await PasswordAuth.query().whereIn(PasswordAuth.columns.USER_ID, userIds);
 	}
 
 	static async createUserWithPasswordAuth(data: AddPasswordAuthForUserData) {
+		console.debug(
+			`[PasswordAuth] createUserWithPasswordAuth. login: ${data.login}, password: ${data.password}`
+		);
 		const user = await User.query(data.transaction).insert({});
 
 		const passwordAuth = await PasswordAuth.createPasswordAuthForUser({ ...data, userId: user.id });
@@ -85,6 +86,9 @@ export class PasswordAuth extends Auth {
 		password,
 		transaction
 	}: CreatePasswordAuthForUserData) {
+		console.debug(
+			`[PasswordAuth] createPasswordAuthForUser. userId: ${userId}, login: ${login}, password: ${password}`
+		);
 		const authData = {
 			[Auth.columns.USER_ID]: userId,
 			[Auth.columns.LOGIN]: login,
@@ -99,6 +103,7 @@ export class PasswordAuth extends Auth {
 	}: {
 		login: string;
 	}): Promise<PasswordAuth | null> {
+		console.debug(`[PasswordAuth] getPasswordAuthByLogin. login: ${login}`);
 		return (await PasswordAuth.query().findOne(PasswordAuth.columns.LOGIN, '=', login)) ?? null;
 	}
 }

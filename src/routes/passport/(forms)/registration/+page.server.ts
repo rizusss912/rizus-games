@@ -14,12 +14,12 @@ type RegistraionFormData = {
 };
 
 export const load: PageServerLoad = async (event) => {
-    console.debug(`GET /passport/registration`);
+	console.debug(`(GET) /passport/registration`);
 };
 
 export const actions: Actions = {
 	default: async function (event) {
-        console.debug(`POST /passport/registration`);
+		console.debug(`(POST) /passport/registration`);
 		const registrationData = await selectFormData<RegistraionFormData>(event);
 
 		//TODO(rizus): нужна валидация
@@ -80,7 +80,7 @@ export const actions: Actions = {
 							event,
 							transaction,
 							userId: user.id,
-							passiveUserIds: [userId, ...passiveUserIds]
+							passiveUserIds: [...new Set([userId, ...passiveUserIds])]
 						});
 					} else if (auths[AuthType.ANONYMOUS]) {
 						await PasswordAuth.createPasswordAuthForUser({ userId, password, login, transaction });

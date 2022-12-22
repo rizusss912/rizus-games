@@ -16,7 +16,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 
 export const actions: Actions = {
 	default: async function (event) {
-		console.debug(`POST /passport/login`);
+		console.debug(`(POST) /passport/login`);
 		const loginData = await selectFormData<LoginFormData>(event);
 		//TODO(rizus): нужна валидация
 		const { login, password } = loginData;

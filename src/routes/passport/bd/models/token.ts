@@ -87,12 +87,12 @@ export class Token extends PassportModel {
 	}
 
 	static async verifyTokenById(tokenId: number): Promise<Token | null> {
-		console.debug(`[Token] verifyTokenById ${tokenId}`);
+		console.debug(`[Token] verifyTokenById. tokenId: ${tokenId}`);
 		return (await Token.getTokenById(tokenId)) ?? null;
 	}
 
 	static async getTokenById(tokenId: number): Promise<Token | null> {
-		console.debug(`[Token] getTokenById ${tokenId}`);
+		console.debug(`[Token] getTokenById. tokenId: ${tokenId}`);
 		return (await Token.query().findById(tokenId)) ?? null;
 	}
 

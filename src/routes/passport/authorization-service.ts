@@ -87,7 +87,11 @@ export class AuthorizationService {
 		userId,
 		passiveUserIds
 	}: GetAuthResultData): Promise<AuthResult> {
-		console.debug('[AuthorizationService] getAuthResult');
+		console.debug(
+			`[AuthorizationService] getAuthResult. userId: ${userId}, passiveUserIds: ${
+				passiveUserIds.toString() || `[]`
+			}`
+		);
 		const users = await User.getUsersByUserIds([userId, ...passiveUserIds]);
 		//TODO надо оптимизировать
 		const usersDataPromises = users.map((user) => user.getData());
@@ -141,7 +145,11 @@ export class AuthorizationService {
 	}
 
 	public static async deleteTokens({ accessToken, refreshToken, transaction }: DeleteTokensData) {
-		console.debug('deleteTokens');
+		console.debug(
+			`[AuthorizationService] deleteTokens. accessToken: ${
+				accessToken?.id || 'null'
+			}, refreshToken: ${refreshToken?.id || 'null'}`
+		);
 		const deleteTokensPromises = [];
 		if (accessToken) {
 			deleteTokensPromises.push(Token.deleteTokenById({ tokenId: accessToken.id, transaction }));
@@ -159,7 +167,7 @@ export class AuthorizationService {
 		passiveUserIds,
 		transaction
 	}: CreateAndSetTokensData) {
-		console.debug('[AuthorizationService] createAndSetTokens');
+		console.debug(`[AuthorizationService] createAndSetTokens. userId: ${userId}, passiveUserIds: ${passiveUserIds}`);
 		const createTokenData = { userId, passiveUserIds, transaction };
 		const [accessToken, refreshToken] = await Promise.all([
 			Token.createToken({ ...createTokenData, type: TokenType.ACCESS }),

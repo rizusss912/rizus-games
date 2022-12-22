@@ -4,7 +4,7 @@ import { PassportModel } from '../bd/models/passport-model';
 import { error, redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async (event: RequestEvent) => {
-	console.debug(`GET /passport/auth`);
+	console.debug(`(GET) /passport/auth`);
 	const { accessToken, refreshToken } = await AuthorizationService.getTokens(event);
 
 	if (accessToken) {

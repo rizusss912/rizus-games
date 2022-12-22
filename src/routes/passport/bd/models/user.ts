@@ -69,10 +69,12 @@ export class User extends PassportModel {
 	}
 
 	static async getUsersByUserIds(userIds: number[]): Promise<User[]> {
+		console.debug(`[User] getUsersByUserIds. userIds: ${userIds || `[]`}`);
 		return await User.query().findByIds(userIds);
 	}
 
 	public async getData(): Promise<UserData> {
+		console.debug(`[User] getData. userId: ${this.id}`);
 		const auths = await User.getAuthsById(this.id);
 		const authTypes = Object.entries(auths)
 			.filter(([_, value]) => value)
@@ -82,6 +84,7 @@ export class User extends PassportModel {
 	}
 
 	public static async getAuthsById(userId: number): Promise<UserAuths> {
+		console.debug(`[User] getAuthsById. userId: ${userId}`);
 		const [anonymousAuth, passwordAuth] = await Promise.all([
 			AnonymousAuth.getAuthByUserId(userId),
 			PasswordAuth.getAuthByUserId(userId)

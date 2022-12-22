@@ -23,6 +23,10 @@ export function connectPassortBD(): Promise<Knex> {
 				...knexSnakeCaseMappers()
 			});
 
+			passportPG.addListener('connection', () =>
+				console.debug(`[connectPassortBD] connection SUSSES`)
+			);
+
 			PassportModel.knex(passportPG);
 			resolve(passportPG);
 		} catch (error) {

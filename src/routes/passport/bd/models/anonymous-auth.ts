@@ -43,6 +43,7 @@ export class AnonymousAuth extends Auth {
 		login,
 		transaction
 	}: CreateUserWithAnonymousAuthData) {
+		console.debug(`[AnonymousAuth] createUserWithAnonymousAuth. login: ${login}`);
 		const user = await User.query(transaction).insert({});
 		const authData = {
 			[Auth.columns.USER_ID]: user.id,
@@ -55,10 +56,12 @@ export class AnonymousAuth extends Auth {
 	}
 
 	static async getAuthByLogin(login: string): Promise<Auth | null> {
+		console.debug(`[AnonymousAuth] getAuthByLogin. login: ${login}`);
 		return (await AnonymousAuth.query().findOne(AnonymousAuth.columns.LOGIN, '=', login)) ?? null;
 	}
 
 	static async getAuthByUserId(userId: number): Promise<Auth | null> {
+		console.debug(`[AnonymousAuth] getAuthByUserId. userId: ${userId}`);
 		return (
 			(await AnonymousAuth.query().findOne(AnonymousAuth.columns.USER_ID, '=', userId)) ?? null
 		);

@@ -49,7 +49,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 
 export const actions: Actions = {
 	default: async function (event) {
-		console.debug(`POST /passport/registration/anonymous`);
+		console.debug(`(POST) /passport/registration/anonymous`);
 		await redirectToPasswordAuthIfHasAuth(event);
 		const anonymousData = await selectFormData<AnonymousFormData>(event);
 
