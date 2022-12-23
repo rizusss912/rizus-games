@@ -7,6 +7,7 @@
         return async () => await invalidateAll();
     }
 </script>
+
 <form use:enhance={enhanceHandler} method="POST">
 {$page.data.userData.id}
 {$page.data.userData.login}

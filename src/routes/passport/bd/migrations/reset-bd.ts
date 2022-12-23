@@ -90,4 +90,5 @@ export async function resetBD(knex: Knex) {
 	await createPasswordAuthsTable(knex);
 	await createTokenTable(knex);
 	await createUserTokenTable(knex);
+	console.log('resetBD');
 }

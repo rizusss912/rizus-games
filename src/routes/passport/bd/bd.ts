@@ -26,6 +26,9 @@ export function connectPassortBD(): Promise<Knex> {
 			passportPG.addListener('connection', () =>
 				console.debug(`[connectPassortBD] connection SUSSES`)
 			);
+			passportPG.addListener('uncaughtException', (err) => {
+				console.error(`[connectPassortBD] ERROR`, err);
+			});
 
 			PassportModel.knex(passportPG);
 			resolve(passportPG);

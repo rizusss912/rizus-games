@@ -1,4 +1,4 @@
-import { selectFormData } from '$lib/utils/form';
+import { selectFormData, selectFormDataAndValidate } from '$lib/utils/form';
 import { error, redirect, type RequestEvent } from '@sveltejs/kit';
 import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
 import { auth, getPassportOnAuthRedirect } from '../../../passport.utils';
@@ -8,23 +8,11 @@ import { AuthType } from '$lib/enums/auth-type';
 import type { PageServerLoad } from '../$types';
 import { AnonymousAuth } from '../../../bd/models/anonymous-auth';
 import { AuthorizationService } from '../../../authorization-service';
+import { jsonValidationFactory, merge, type Json } from '$lib/utils/validation';
+import { validators } from '../../../validators';
 
-interface AnonymousFormData extends Record<string, string | null> {
-	login: string | null;
-}
-
-function validateData({ login }: AnonymousFormData) {
-	if (!login) {
-		throw error(401, 'Login is required');
-	}
-
-	if (login.length > LOGIN_MAX_LENGTH) {
-		throw error(401, `Login must be shorter than ${LOGIN_MAX_LENGTH} characters`);
-	}
-
-	if (login.length < LOGIN_MIN_LENGTH) {
-		throw error(401, `Login must be more than ${LOGIN_MIN_LENGTH} characters`);
-	}
+interface AnonymousFormData extends Json {
+	login: string;
 }
 
 async function redirectToPasswordAuthIfHasAuth(event: RequestEvent) {
@@ -47,15 +35,15 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 	await redirectToPasswordAuthIfHasAuth(event);
 };
 
+const { getValidator } = jsonValidationFactory<AnonymousFormData>({
+	login: merge(...validators.anonymousLogin)
+});
+
 export const actions: Actions = {
 	default: async function (event) {
 		console.debug(`(POST) /passport/registration/anonymous`);
 		await redirectToPasswordAuthIfHasAuth(event);
-		const anonymousData = await selectFormData<AnonymousFormData>(event);
-
-		validateData(anonymousData);
-		const { login } = anonymousData;
-
+		const { login } = await selectFormDataAndValidate(event, getValidator);
 		const transaction = await PassportModel.startTransaction();
 
 		try {

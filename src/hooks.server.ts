@@ -5,7 +5,12 @@ import { resetBD } from './routes/passport/bd/migrations/reset-bd';
 const passportBd = await connectPassortBD();
 
 export const handle: Handle = async ({ event, resolve }) => {
-	//await resetBD(passportBd);
+	console.log('resetBD');
+	try {
+		await resetBD(passportBd);
+	} catch (e) {
+		console.log(e);
+	}
 	return await resolve(event);
 };
 

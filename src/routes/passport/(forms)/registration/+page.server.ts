@@ -1,11 +1,19 @@
 import { AuthType } from '$lib/enums/auth-type';
-import { selectFormData } from '$lib/utils/form';
-import { error, redirect, type ActionResult, type Actions } from '@sveltejs/kit';
+import { StringOnly } from '$lib/utils/default-validators';
+import { selectFormDataAndValidate } from '$lib/utils/form';
+import {
+	jsonValidationFactory,
+	merge,
+	ValidationError,
+	type JsonEndpointValue
+} from '$lib/utils/validation';
+import { error, type Actions } from '@sveltejs/kit';
 import { AuthorizationService } from '../../authorization-service';
 import { PassportModel } from '../../bd/models/passport-model';
 import { PasswordAuth } from '../../bd/models/password-auth';
 import { User } from '../../bd/models/user';
 import { getPassportOnAuthRedirect } from '../../passport.utils';
+import { validators } from '../../validators';
 import type { PageServerLoad } from './$types';
 
 type RegistraionFormData = {
@@ -13,24 +21,31 @@ type RegistraionFormData = {
 	password: string;
 };
 
+class UniqueLogin extends StringOnly {
+	async validate(value: JsonEndpointValue): Promise<void> {
+		super.validate(value);
+
+		if (await PasswordAuth.getAuthByLogin(value)) {
+			throw new ValidationError('Пользоватеель с таким именем уже существует');
+		}
+	}
+}
+
 export const load: PageServerLoad = async (event) => {
 	console.debug(`(GET) /passport/registration`);
 };
 
+const { getValidator } = jsonValidationFactory<RegistraionFormData>({
+	login: merge(...validators.login, new UniqueLogin()),
+	password: merge(...validators.password),
+	passwordConfirm: merge(...validators.password)
+});
+
 export const actions: Actions = {
 	default: async function (event) {
 		console.debug(`(POST) /passport/registration`);
-		const registrationData = await selectFormData<RegistraionFormData>(event);
-
-		//TODO(rizus): нужна валидация
-		const { login, password } = registrationData;
-
+		const { login, password } = await selectFormDataAndValidate(event, getValidator);
 		const transaction = await PassportModel.startTransaction();
-		const userWithLogin = await PasswordAuth.getAuthByLogin(login);
-
-		if (userWithLogin) {
-			throw error(401, 'Пользоватеель с таким именем уже существует');
-		}
 
 		//TODO(rizus): нужно зарефакторить. разнести по функциям и убрать вложнные if else
 		try {

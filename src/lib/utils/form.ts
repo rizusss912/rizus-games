@@ -1,4 +1,5 @@
 import { error, type RequestEvent } from '@sveltejs/kit';
+import type { Json, JsonHandler } from './validation';
 
 async function getFormData(event: RequestEvent) {
 	try {
@@ -8,9 +9,7 @@ async function getFormData(event: RequestEvent) {
 	}
 }
 
-function mapFormDataToObject<FormObject extends Record<string, string | null>>(
-	formData: FormData
-): FormObject {
+function mapFormDataToObject<FormObject extends Json>(formData: FormData): FormObject {
 	const formObject: FormObject = {};
 
 	for (const [key] of formData) {
@@ -20,9 +19,24 @@ function mapFormDataToObject<FormObject extends Record<string, string | null>>(
 	return formObject;
 }
 
-export async function selectFormData<FormObject extends Record<string, string | null>>(
+export async function selectFormData<FormObject extends Json>(
 	event: RequestEvent
 ): Promise<FormObject> {
 	const formData = await getFormData(event);
 	return mapFormDataToObject<FormObject>(formData);
+}
+
+export async function selectFormDataAndValidate<FormObject extends Json>(
+	event: RequestEvent,
+	getValidation: (json: FormObject) => JsonHandler<FormObject>
+): Promise<FormObject> {
+	const validation = getValidation(await selectFormData<FormObject>(event));
+
+	const validationErrors = await validation.validate();
+
+	for (const validationError of validationErrors) {
+		throw error(401, validationError.toString());
+	}
+
+	return validation.formatedJson;
 }

@@ -31,8 +31,8 @@
 />
 <input
 	type="password"
-	name="password-confirm"
-	id="password-confirm"
+	name="passwordConfirm"
+	id="passwordConfirm"
 	placeholder="Повторите пароль"
 	autocomplete="new-password"
 	minlength={PASSWORD_MIN_LENGTH}
