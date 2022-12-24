@@ -1,7 +1,7 @@
 import type { HandleServerError } from '@sveltejs/kit';
 import { connectPassortBD } from './routes/passport/bd/bd';
 import { resetBD } from './routes/passport/bd/migrations/reset-bd';
-import { StaticFilesService } from '$lib/api/s3';
+import { BackandAppFilesService } from '$lib/api/s3';
 import { sequence } from '@sveltejs/kit/hooks';
 import { get, writable } from 'svelte/store';
 import type { Knex } from 'knex';
@@ -27,7 +27,7 @@ export const handle = sequence(
 			serverState.needUploadBackandAppFilesToStatic &&
 			!serverState.uploadedBackandAppFilesToStatic
 		) {
-			await StaticFilesService.uploadBackandAppFilesToS3();
+			await BackandAppFilesService.uploadBackandAppFilesToS3();
 			server.set({ ...serverState, uploadedBackandAppFilesToStatic: true });
 		}
 
