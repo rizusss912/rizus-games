@@ -1,5 +1,5 @@
 import type { Transaction } from 'objection';
-import { hashSync, compareSync } from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { Auth } from './auth';
 import { User } from './user';
 
@@ -27,7 +27,7 @@ export class PasswordAuth extends Auth {
 
 	passwordHash!: string;
 	checkPassword(password: string): boolean {
-		return compareSync(password, this.passwordHash);
+		return bcryptjs.compareSync(password, this.passwordHash);
 	}
 
 	static jsonSchema = {
@@ -92,7 +92,7 @@ export class PasswordAuth extends Auth {
 		const authData = {
 			[Auth.columns.USER_ID]: userId,
 			[Auth.columns.LOGIN]: login,
-			[PasswordAuth.columns.PASSWORD_HASH]: hashSync(password, 10)
+			[PasswordAuth.columns.PASSWORD_HASH]: bcryptjs.hashSync(password, 10)
 		};
 
 		return await PasswordAuth.query(transaction).insert(authData);

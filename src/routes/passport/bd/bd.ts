@@ -1,6 +1,7 @@
 import knex, { Knex } from 'knex';
 import { knexSnakeCaseMappers } from 'objection';
 import { PassportModel } from './models/passport-model';
+import { env } from '$env/dynamic/private';
 
 let connectPassortBDPromise: Promise<Knex> | undefined;
 
@@ -9,12 +10,12 @@ export function connectPassortBD(): Promise<Knex> {
 		return connectPassortBDPromise;
 	}
 
-	connectPassortBDPromise = new Promise<Knex>(async (resolve, reject) => {
+	connectPassortBDPromise = new Promise<Knex>((resolve, reject) => {
 		try {
 			const passportPG = knex({
 				client: 'pg',
 				connection: {
-					connectionString: process.env.PASSPORT_PG_CONNECTION_STRING,
+					connectionString: env.PASSPORT_PG_CONNECTION_STRING,
 					connectionTimeoutMillis: 60 * 1000,
 					ssl: {
 						rejectUnauthorized: false

@@ -1,13 +1,14 @@
 import { Cookies } from '$lib/enums/cookie';
 import { error, type RequestEvent } from '@sveltejs/kit';
-import { sign, verify } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import type { Transaction } from 'objection';
 import { Token, TokenType, type AuthResult, type TokenPayload } from './bd/models/token';
 import { User, type UserData } from './bd/models/user';
+import { env } from '$env/dynamic/private';
 
 const TOKEN_SECRET: Record<TokenType, string> = {
-	[TokenType.ACCESS]: process.env.ACCESS_TOKEN_SECRET!,
-	[TokenType.REFRESH]: process.env.REFRESH_TOKEN_SECRET!
+	[TokenType.ACCESS]: env.ACCESS_TOKEN_SECRET!,
+	[TokenType.REFRESH]: env.REFRESH_TOKEN_SECRET!
 };
 const TOKEN_COOKIE: Record<TokenType, Cookies> = {
 	[TokenType.ACCESS]: Cookies.ACCESS_TOKEN,
@@ -167,7 +168,9 @@ export class AuthorizationService {
 		passiveUserIds,
 		transaction
 	}: CreateAndSetTokensData) {
-		console.debug(`[AuthorizationService] createAndSetTokens. userId: ${userId}, passiveUserIds: ${passiveUserIds}`);
+		console.debug(
+			`[AuthorizationService] createAndSetTokens. userId: ${userId}, passiveUserIds: ${passiveUserIds}`
+		);
 		const createTokenData = { userId, passiveUserIds, transaction };
 		const [accessToken, refreshToken] = await Promise.all([
 			Token.createToken({ ...createTokenData, type: TokenType.ACCESS }),
@@ -225,14 +228,14 @@ export class AuthorizationService {
 		}
 
 		try {
-			return (await verify(jwtToken, TOKEN_SECRET[type])) as TokenPayload;
+			return (await jwt.verify(jwtToken, TOKEN_SECRET[type])) as TokenPayload;
 		} catch {
 			return null;
 		}
 	}
 
 	private static getJwtToken(payload: TokenPayload, type: TokenType) {
-		return sign(payload, TOKEN_SECRET[type], {
+		return jwt.sign(payload, TOKEN_SECRET[type], {
 			expiresIn: TOKEN_LIFETIME_SEC[type]
 		});
 	}

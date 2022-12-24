@@ -1,4 +1,4 @@
-import { selectFormData, selectFormDataAndValidate } from '$lib/utils/form';
+import { selectFormDataAndValidate } from '$lib/utils/form';
 import { jsonValidationFactory, merge } from '$lib/utils/validation';
 import { error } from '@sveltejs/kit';
 import { AuthorizationService } from '../../authorization-service';
