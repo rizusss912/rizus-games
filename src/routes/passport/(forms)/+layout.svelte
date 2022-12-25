@@ -1,11 +1,13 @@
-<main>
-	<form method="POST">
-		<slot />
-	</form>
-</main>
+<div class="wrapper">
+	<main>
+		<form method="POST">
+			<slot />
+		</form>
+	</main>
+</div>
 
 <style>
-	:root {
+	.wrapper {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -33,7 +35,7 @@
 	}
 
 	@media (prefers-color-scheme: dark) {
-		:root {
+		.wrapper {
 			background-image: url(../default-dark-background.jpeg);
 		}
 	}

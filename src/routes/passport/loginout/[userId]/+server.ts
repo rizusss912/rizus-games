@@ -30,6 +30,7 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 	}
 
 	const transaction = await PassportModel.startTransaction();
+
 	try {
 		if (passiveUserIds.length === 0) {
 			await AuthorizationService.removeActiveTokens({ event, transaction });
