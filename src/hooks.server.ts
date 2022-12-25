@@ -48,10 +48,18 @@ export const handle = sequence(
 		const serverState = get(server);
 
 		if (serverState.needToRevertBD && !serverState.revertedBd) {
-			await resetBD(serverState.passportBd!);
+			if (!serverState.passportBd) {
+				throw Error('missing db connect');
+			}
+
+			await resetBD(serverState.passportBd);
+
 			server.set({ ...serverState, revertedBd: true });
 		}
 
+		return await resolve(event);
+	},
+	async ({ event, resolve }) => {
 		return await resolve(event);
 	}
 );

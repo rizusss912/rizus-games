@@ -1,7 +1,7 @@
 import { UserAvatarService } from '$lib/api/s3';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 import { error, redirect } from '@sveltejs/kit';
-import type { RequestEvent, RequestHandler } from './$types';
+import type { RequestEvent, RequestHandler } from '../$types';
 import type { AvatarSize } from '$lib/enums/avatar-size';
 
 const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');

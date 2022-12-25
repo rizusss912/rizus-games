@@ -4,17 +4,22 @@
         button,
         input
     }
-
     export enum ButtonTheme {
         primary = 'primary',
         secondary = 'secondary',
         transparent = 'transparent',
+    }
+
+    export enum ButtonSize {
+        none = 'none',
+        m = 'm',
     }
 </script>
 
 <script lang="ts">
     export let buttonType: ButtonType = ButtonType.button;
     export let buttonTheme: ButtonTheme = ButtonTheme.primary;
+    export let size: ButtonSize | null = ButtonSize.m;
     export let type: string | null = null;
     export let value: string | null = null;
     export let formaction: string | null = null;
@@ -31,7 +36,7 @@
     }
 </script>
 
-<svelte:element this={getElementName(buttonType)} class="button {buttonTheme}">
+<svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}">
     <slot />
     {#if buttonType === ButtonType.input}
         <input {type} {value} {formmethod} {formaction} />
@@ -40,17 +45,27 @@
 
 <style>
     .button {
-        display: inline-block;
-
-        padding: 12px 24px;
-        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
 
         cursor: pointer;
+    }
+
+    .button.m {
+        padding: 12px 24px;
+        border-radius: 12px;
     }
 
     .button.primary {
         background: var(--primary-color);
         color: var(--primary-text-color);
+    }
+
+    .button.transparent {
+        background: transparent;
+        color: var(--secondary-text-color);
+        fill: var(--secondary-text-color);
     }
 
     input {

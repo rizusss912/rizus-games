@@ -1,22 +1,51 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
-	import { invalidateAll } from "$app/navigation";
+	import { invalidate, invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
-	import Button, { ButtonType } from "$lib/components/button.svelte";
+	import Button, { ButtonTheme, ButtonType } from "$lib/components/button.svelte";
 	import { AvatarSize } from "$lib/enums/avatar-size";
+	import Exit from "$lib/icons/exit.svelte";
+	import LoginLabel from "$passport/login-label.svelte";
+	import type { SubmitFunction } from "@sveltejs/kit";
+	import { onMount } from "svelte";
 
-    function enhanceHandler() {
+    let avatarTimestempForReloadPicture = Date.now();
+    let jsIsActive = false;
+
+    function enhanceUserFormHandler() {
         return async () => await invalidateAll();
     }
+
+    function askForAnAvatarAgain() {
+        avatarTimestempForReloadPicture = Date.now();
+    }
+
+    const enhanceAvatarHandler: SubmitFunction = ({form}: {form: HTMLFormElement}) => {
+        return async () => {
+            await invalidate($page.url);
+            form.reset();
+            askForAnAvatarAgain();
+            setTimeout(askForAnAvatarAgain, 500);
+            setTimeout(askForAnAvatarAgain, 2000);
+        };
+    }
+
+    const handleChangeForm: FormEventHandler<HTMLFormElement> = (event: FormDataEvent) => {
+        if (event.target.value) {
+            event.currentTarget?.dispatchEvent(new CustomEvent('submit'));
+        }
+    }
+
+    onMount(() => jsIsActive = true)
 </script>
 
 <div class="wrapper">
     <main>
-        <form method="POST" action="passport/{$page.data.userData.id}/avatar" enctype="multipart/form-data">
+        <form on:change={handleChangeForm} method="POST" action="passport/{$page.data.userData.id}/avatar" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
             <label class="avatar-label" for="avatar">
                 <img
                     class="avatar-img"
-                    src="passport/{$page.data.userData.id}/avatar/{AvatarSize.NORMAL}"
+                    src="passport/{$page.data.userData.id}/avatar/{AvatarSize.NORMAL}/{avatarTimestempForReloadPicture}"
                     width="{AvatarSize.NORMAL}"
                     height="{AvatarSize.NORMAL}"
                     alt="{$page.data.userData.login} avatar"
@@ -27,15 +56,14 @@
                 id="avatar"
                 name="avatar"
                 class="avatar-input"
+                class:hide-save-button={jsIsActive}
                 accept="image/*, .jpg, .jpeg, .png, .webp"
                 required
                 />
             <Button buttonType={ButtonType.input} type="submit" value="Сохранить аватар">Сохранить аватар</Button>
         </form>
-
-        <form class="user-form" use:enhance={enhanceHandler} method="POST">
-        {$page.data.userData.login}
-        <Button buttonType={ButtonType.input}  type="submit" value="выйти" formaction="passport/loginout/{$page.data.userData.id}">выйти</Button>
+        <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
+            <LoginLabel userData={$page.data.userData} />
         ещё:
         {#each $page.data.passiveUsersData as userData}
         <br />
@@ -45,7 +73,10 @@
         {/each}
         <br />
 
-        <Button buttonType={ButtonType.input} type="submit" value="выйти из всех" formaction="passport/loginout">выйти из всех</Button>
+        <Button buttonType={ButtonType.input} buttonTheme={ButtonTheme.transparent} type="submit" value="выйти из всех" formaction="passport/loginout">
+            <Exit />
+            выйти из всех
+        </Button>
         </form>
     </main>
 </div>
@@ -107,6 +138,7 @@
         display: none;
     }
 
+    .avatar-input.hide-save-button ~ :global(*),
     .avatar-input:invalid ~ :global(*) {
         display: none;
     }

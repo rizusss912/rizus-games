@@ -16,6 +16,9 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
+		alias: {
+			$passport: 'src/routes/passport'
+		},
 		paths: {
 			assets:
 				process.env.NODE_ENV === 'production'

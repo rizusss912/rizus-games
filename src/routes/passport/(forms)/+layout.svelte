@@ -15,8 +15,6 @@
 		width: 100%;
 		height: 100%;
 		min-height: 100vh;
-
-		background-image: url(../default-light-background.jpeg);
 	}
 
 	main {
@@ -34,9 +32,4 @@
 		width: 300px;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		.wrapper {
-			background-image: url(../default-dark-background.jpeg);
-		}
-	}
 </style>
