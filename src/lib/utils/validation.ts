@@ -1,4 +1,4 @@
-export type JsonEndpointValue = string | number | boolean;
+export type JsonEndpointValue = string | number | boolean | File;
 export class ValidationError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -25,7 +25,7 @@ export interface Formatter {
 	format(value: JsonEndpointValue): JsonEndpointValue;
 }
 export class EndpointHandler implements Validator, Formatter {
-	validate(value: JsonEndpointValue): Promise<void> | void {}
+	validate(_: JsonEndpointValue): Promise<void> | void {}
 
 	format(value: JsonEndpointValue): JsonEndpointValue {
 		return value;

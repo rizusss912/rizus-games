@@ -1,16 +1,8 @@
-import { error, redirect, type HttpError } from '@sveltejs/kit';
+import { error, type HttpError } from '@sveltejs/kit';
 import { AuthorizationService } from '../../authorization-service';
 import { PassportModel } from '../../bd/models/passport-model';
-import { auth } from '../../passport.utils';
 import type { RequestEvent, RequestHandler } from './$types';
-
-function parseIntOrThrowError(string: string, error?: HttpError): number {
-	try {
-		return parseInt(string, 10);
-	} catch (err) {
-		throw error ?? err;
-	}
-}
+import { parseIntOrThrowError } from '$lib/utils/asserts';
 
 //TODO(rizus): Можно удалять только запись в UserToken, пока не знаю как лучше
 export const POST: RequestHandler = async (event: RequestEvent) => {

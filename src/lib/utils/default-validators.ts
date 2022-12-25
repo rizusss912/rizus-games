@@ -18,7 +18,7 @@ export class Trim extends EndpointHandler {
 	}
 }
 
-export class Required extends StringOnly {
+export class Required extends EndpointHandler {
 	validate(value: JsonEndpointValue) {
 		super.validate(value);
 

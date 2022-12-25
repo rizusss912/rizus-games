@@ -5,6 +5,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'path';
+import { AvatarSize } from '$lib/enums/avatar-size';
 
 const __dirname = path.resolve();
 
@@ -78,8 +79,7 @@ export class StaticFilesService {
 			client: s3Client,
 			params: { Bucket: BUCKET, Key: path, Body: body }
 		});
-
-		const { Key } = await uploader.done().catch(console.error);
+		const { Key } = await uploader.done();
 		const url = StaticFilesService.getUrlByPath(Key);
 
 		return { url };
@@ -106,30 +106,49 @@ export class BackandAppFilesService extends StaticFilesService {
 export class UserAvatarService extends StaticFilesService {
 	private static AVATAR_FORMAT: Parameters<sharp.Sharp['toFormat']>[0] = 'webp';
 
-	public static async uploadUserAvatar(userId: number, avatar: Buffer): Promise<StaticFile[]> {
-		const path = UserAvatarService.getUserAvatarPath(userId);
-		const originPath = UserAvatarService.getOriginUserAvatarPath(userId);
-		const formatedAvatar = await UserAvatarService.formattingAvatar(avatar);
+	public static async uploadUserAvatar(userId: number, avatar: File): Promise<StaticFile[]> {
+		const originPath = UserAvatarService.getOriginUserAvatarPath(userId, avatar.name);
+		const avatarAsBuffer = Buffer.from(await avatar.arrayBuffer());
+		const formatedAvatarsPromices = Object.values(AvatarSize)
+			.filter((size) => typeof size === 'number')
+			.map(async (size) => {
+				const path = UserAvatarService.getPathToUserAvatar(userId, size as AvatarSize);
+				const formatedAvatar = await UserAvatarService.formattingAvatar(
+					avatarAsBuffer,
+					size as AvatarSize
+				);
+
+				return StaticFilesService.upload(path, formatedAvatar);
+			});
 
 		return Promise.all([
-			StaticFilesService.upload(path, formatedAvatar),
-			StaticFilesService.upload(originPath, avatar)
+			StaticFilesService.upload(originPath, avatarAsBuffer),
+			...formatedAvatarsPromices
 		]);
 	}
 
-	public static getUserAvatarUrl(userId: number): string {
-		return StaticFilesService.getUrlByPath(UserAvatarService.getUserAvatarPath(userId));
+	public static getUserAvatarUrl(userId: number, size: AvatarSize): string {
+		return StaticFilesService.getUrlByPath(UserAvatarService.getPathToUserAvatar(userId, size));
 	}
 
-	private static getUserAvatarPath(userId: number): string {
-		return `${BucketFolder.PASSPORT}/${PassportFolder.USER}/${userId}/avatar.${UserAvatarService.AVATAR_FORMAT}`;
+	private static getPathToUserAvatarFolder(userId: number) {
+		return `${BucketFolder.PASSPORT}/${PassportFolder.USER}/${userId}/avatar`;
 	}
 
-	private static getOriginUserAvatarPath(userId: number): string {
-		return `${BucketFolder.PASSPORT}/${PassportFolder.USER}/${userId}/origin/`;
+	private static getPathToUserAvatar(userId: number, size: AvatarSize): string {
+		const pathToAvatarFolder = UserAvatarService.getPathToUserAvatarFolder(userId);
+
+		return `${pathToAvatarFolder}/${size}.${UserAvatarService.AVATAR_FORMAT}`;
 	}
 
-	private static formattingAvatar(avatar: Buffer): Promise<Buffer> {
-		return sharp(avatar).resize(500, 500).toFormat(UserAvatarService.AVATAR_FORMAT).toBuffer();
+	private static getOriginUserAvatarPath(userId: number, originName: string): string {
+		const name = `${crypto.randomUUID()}-${originName}`;
+		const pathToAvatarFolder = UserAvatarService.getPathToUserAvatarFolder(userId);
+
+		return `${pathToAvatarFolder}/origin/${name}`;
+	}
+
+	private static formattingAvatar(avatar: Buffer, size: AvatarSize): Promise<Buffer> {
+		return sharp(avatar).resize(size, size).toFormat(UserAvatarService.AVATAR_FORMAT).toBuffer();
 	}
 }
