@@ -33,12 +33,9 @@
             <Button buttonType={ButtonType.input} type="submit" value="Сохранить аватар">Сохранить аватар</Button>
         </form>
 
-        <form use:enhance={enhanceHandler} method="POST">
-        {$page.data.userData.id}
+        <form class="user-form" use:enhance={enhanceHandler} method="POST">
         {$page.data.userData.login}
-
         <Button buttonType={ButtonType.input}  type="submit" value="выйти" formaction="passport/loginout/{$page.data.userData.id}">выйти</Button>
-        <br />
         ещё:
         {#each $page.data.passiveUsersData as userData}
         <br />
@@ -90,11 +87,15 @@
         left: 50%;
 
         border-radius: 50%;
-        cursor: pointer;
-        border: 16px solid var(--background-color);
+        width: 200px;
+        height: 200px;
 
         transform: translate(-50%, calc(var(--avatar-offset) * -1));
 
+        border: 16px solid var(--background-color);
+        background: var(--background-color);
+
+        cursor: pointer;
         overflow: hidden;
     }
 
@@ -108,5 +109,17 @@
 
     .avatar-input:invalid ~ :global(*) {
         display: none;
+    }
+
+    .user-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 16px;
+
+        width: 100%;
+        height: 100%;
     }
 </style>

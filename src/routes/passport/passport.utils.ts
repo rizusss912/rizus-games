@@ -32,6 +32,7 @@ export async function auth({
 }: RequestEvent): Promise<AuthResult> {
 	const authResponse = await fetch('/passport/auth', { headers });
 	const cookie = authResponse.headers.get('Set-Cookie');
+
 	if (cookie) {
 		const authcookies = cookieParser.splitCookiesString(cookie);
 		for (const cookieStr of authcookies) {

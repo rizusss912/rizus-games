@@ -1,6 +1,5 @@
-import { selectFormData, selectFormDataAndValidate } from '$lib/utils/form';
-import { error, redirect, type RequestEvent } from '@sveltejs/kit';
-import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
+import { selectFormDataAndValidate } from '$lib/utils/form';
+import { redirect, type RequestEvent } from '@sveltejs/kit';
 import { auth, getPassportOnAuthRedirect } from '../../../passport.utils';
 import type { Actions } from './$types';
 import { PassportModel } from '../../../bd/models/passport-model';
@@ -26,12 +25,14 @@ async function redirectToPasswordAuthIfHasAuth(event: RequestEvent) {
 
 	if (authData.userData.authTypes.includes(AuthType.PASSWORD)) {
 		console.debug(`user has password auth. redirect to /passport/registration`);
+
 		throw redirect(307, '/passport/registration');
 	}
 }
 
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	console.debug(`GET /passport/registration/anonymous`);
+
 	await redirectToPasswordAuthIfHasAuth(event);
 };
 
@@ -42,13 +43,15 @@ const { getValidator } = jsonValidationFactory<AnonymousFormData>({
 export const actions: Actions = {
 	default: async function (event) {
 		console.debug(`(POST) /passport/registration/anonymous`);
+
 		await redirectToPasswordAuthIfHasAuth(event);
-		const { login } = await selectFormDataAndValidate(event, getValidator);
+
+		const { login } = await selectFormDataAndValidate<AnonymousFormData>(event, getValidator);
 		const transaction = await PassportModel.startTransaction();
 
 		try {
 			const { user } = await AnonymousAuth.createUserWithAnonymousAuth({
-				login: login!,
+				login,
 				transaction
 			});
 

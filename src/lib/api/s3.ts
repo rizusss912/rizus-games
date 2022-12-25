@@ -171,10 +171,9 @@ export class UserAvatarService extends StaticFilesService {
 	}
 
 	private static getOriginUserAvatarPath(userId: number, originName: string): string {
-		const name = `${crypto.randomUUID()}-${originName}`;
 		const pathToAvatarFolder = UserAvatarService.getPathToUserAvatarFolder(userId);
 
-		return `${pathToAvatarFolder}/origin/${name}`;
+		return `${pathToAvatarFolder}/origin/${originName}`;
 	}
 
 	private static formattingAvatar(avatar: Buffer, size: AvatarSize): Promise<Buffer> {

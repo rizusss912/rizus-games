@@ -31,7 +31,7 @@ class UniqueLogin extends StringOnly {
 	}
 }
 
-export const load: PageServerLoad = async (event) => {
+export const load: PageServerLoad = async () => {
 	console.debug(`(GET) /passport/registration`);
 };
 
@@ -44,6 +44,7 @@ const { getValidator } = jsonValidationFactory<RegistraionFormData>({
 export const actions: Actions = {
 	default: async function (event) {
 		console.debug(`(POST) /passport/registration`);
+
 		const { login, password } = await selectFormDataAndValidate(event, getValidator);
 		const transaction = await PassportModel.startTransaction();
 
@@ -106,7 +107,7 @@ export const actions: Actions = {
 							passiveUserIds
 						});
 					} else {
-						throw error(500, 'Не удалось создать акаунт из-за неизвестной авторизации');
+						throw error(500, 'Не удалось создать аккаунт из-за неизвестного типа авторизации');
 					}
 				}
 			}
