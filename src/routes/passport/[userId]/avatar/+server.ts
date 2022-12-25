@@ -1,6 +1,6 @@
 import type { RequestEvent, RequestHandler } from './$types';
 import { selectFormDataAndValidate } from '$lib/utils/form';
-import { jsonValidationFactory } from '$lib/utils/validation';
+import { EndpointHandler, jsonValidationFactory, merge } from '$lib/utils/validation';
 import { Required } from '$lib/utils/default-validators';
 import { error } from '@sveltejs/kit';
 import { UserAvatarService } from '$lib/api/s3';
@@ -11,8 +11,28 @@ type AvatarFormData = {
 	avatar: File;
 };
 
+class AvatarFileValidator extends EndpointHandler {
+	async validate(value: File): Promise<void> {
+		let validationErrorText: string | null;
+
+		if (!value.size) {
+			throw new Error('отсутствует файл');
+		}
+
+		try {
+			validationErrorText = await UserAvatarService.getValidAvatarError(value);
+		} catch (cause) {
+			throw new Error('не удалось прочитать файл', { cause });
+		}
+
+		if (validationErrorText) {
+			throw new Error(validationErrorText);
+		}
+	}
+}
+
 const { getValidator } = jsonValidationFactory<AvatarFormData>({
-	avatar: new Required()
+	avatar: merge(new Required(), new AvatarFileValidator())
 });
 const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');
 
@@ -35,7 +55,7 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 	try {
 		await UserAvatarService.uploadUserAvatar(userId, avatar);
 	} catch (err) {
-		console.log(err);
+		throw error(500, 'не удалось изменить аватар');
 	}
 
 	return new Response(null, { status: 200 });

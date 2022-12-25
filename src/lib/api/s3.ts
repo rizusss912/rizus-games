@@ -2,7 +2,7 @@ import { version } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import sharp from 'sharp';
+import sharp, { type FormatEnum } from 'sharp';
 import fs from 'node:fs';
 import path from 'path';
 import { AvatarSize } from '$lib/enums/avatar-size';
@@ -104,11 +104,17 @@ export class BackandAppFilesService extends StaticFilesService {
 }
 
 export class UserAvatarService extends StaticFilesService {
-	private static AVATAR_FORMAT: Parameters<sharp.Sharp['toFormat']>[0] = 'webp';
+	private static AVATAR_FORMAT: keyof FormatEnum = 'webp';
+	private static VALID_AVATARS_FILE_FORMATS: Array<keyof FormatEnum> = [
+		'jpeg',
+		'jpg',
+		'png',
+		'webp'
+	];
 
 	public static async uploadUserAvatar(userId: number, avatar: File): Promise<StaticFile[]> {
 		const originPath = UserAvatarService.getOriginUserAvatarPath(userId, avatar.name);
-		const avatarAsBuffer = Buffer.from(await avatar.arrayBuffer());
+		const avatarAsBuffer = await UserAvatarService.getAvatarAsBuffer(avatar);
 		const formatedAvatarsPromices = Object.values(AvatarSize)
 			.filter((size) => typeof size === 'number')
 			.map(async (size) => {
@@ -131,6 +137,29 @@ export class UserAvatarService extends StaticFilesService {
 		return StaticFilesService.getUrlByPath(UserAvatarService.getPathToUserAvatar(userId, size));
 	}
 
+	public static async getValidAvatarError(avatar: File): Promise<string | null> {
+		const avatarAsBuffer = await UserAvatarService.getAvatarAsBuffer(avatar);
+		const { size, format } = await sharp(avatarAsBuffer).metadata();
+
+		if (!format) {
+			return 'не удалось определить формат файла';
+		}
+
+		if (!UserAvatarService.VALID_AVATARS_FILE_FORMATS.includes(format)) {
+			return `формат файла должен быть ${UserAvatarService.VALID_AVATARS_FILE_FORMATS.join(', ')}`;
+		}
+
+		if (!size) {
+			return 'не удалось определить размер';
+		}
+
+		if (size > 1024 * 1024) {
+			return 'Размер файла должен быть меньше 1МБ';
+		}
+
+		return null;
+	}
+
 	private static getPathToUserAvatarFolder(userId: number) {
 		return `${BucketFolder.PASSPORT}/${PassportFolder.USER}/${userId}/avatar`;
 	}
@@ -150,5 +179,9 @@ export class UserAvatarService extends StaticFilesService {
 
 	private static formattingAvatar(avatar: Buffer, size: AvatarSize): Promise<Buffer> {
 		return sharp(avatar).resize(size, size).toFormat(UserAvatarService.AVATAR_FORMAT).toBuffer();
+	}
+
+	private static async getAvatarAsBuffer(avatar: File): Promise<Buffer> {
+		return Buffer.from(await avatar.arrayBuffer());
 	}
 }
