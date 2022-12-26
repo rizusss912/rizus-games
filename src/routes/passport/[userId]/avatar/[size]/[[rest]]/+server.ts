@@ -9,8 +9,9 @@ const invalidUserIdError = error(404, 'Неверный идентификато
 export const GET: RequestHandler = async (event: RequestEvent) => {
 	const userIdInParams = event.params.userId;
 	const size = event.params.size as unknown as AvatarSize;
+	const rest = event.params.rest;
 
-	console.debug(`(POST) /passport/user/${userIdInParams}/avatar/${size}`);
+	console.debug(`(GET) /passport/user/${userIdInParams}/avatar/${size}/${rest}`);
 
 	const userId = parseIntOrThrowError(userIdInParams, invalidUserIdError);
 

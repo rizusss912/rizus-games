@@ -1,23 +1,25 @@
-<script lang="ts">
-	import { enhance } from "$app/forms";
+<script lang="ts" context="module">
+    import { enhance } from "$app/forms";
 	import { invalidate, invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
 	import Button, { ButtonTheme, ButtonType } from "$lib/components/button.svelte";
-	import { AvatarSize } from "$lib/enums/avatar-size";
 	import Exit from "$lib/icons/exit.svelte";
 	import LoginLabel from "$passport/login-label.svelte";
+	import PassiveUsersLabelsList from "$passport/passive-users-labels-list.svelte";
 	import type { SubmitFunction } from "@sveltejs/kit";
 	import { onMount } from "svelte";
+    import UserAvatar from "$lib/components/user-avatar.svelte";
+	import { AvatarSize } from "$lib/enums/avatar-size";
+</script>
 
-    let avatarTimestempForReloadPicture = Date.now();
+
+<script lang="ts">
     let jsIsActive = false;
+
+    let askForAnAvatarAgain: () => void;
 
     function enhanceUserFormHandler() {
         return async () => await invalidateAll();
-    }
-
-    function askForAnAvatarAgain() {
-        avatarTimestempForReloadPicture = Date.now();
     }
 
     const enhanceAvatarHandler: SubmitFunction = ({form}: {form: HTMLFormElement}) => {
@@ -25,13 +27,11 @@
             await invalidate($page.url);
             form.reset();
             askForAnAvatarAgain();
-            setTimeout(askForAnAvatarAgain, 500);
-            setTimeout(askForAnAvatarAgain, 2000);
         };
     }
 
     const handleChangeForm: FormEventHandler<HTMLFormElement> = (event: FormDataEvent) => {
-        if (event.target.value) {
+        if (event.target!.value) {
             event.currentTarget?.dispatchEvent(new CustomEvent('submit'));
         }
     }
@@ -43,13 +43,7 @@
     <main>
         <form on:change={handleChangeForm} method="POST" action="passport/{$page.data.userData.id}/avatar" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
             <label class="avatar-label" for="avatar">
-                <img
-                    class="avatar-img"
-                    src="passport/{$page.data.userData.id}/avatar/{AvatarSize.NORMAL}/{avatarTimestempForReloadPicture}"
-                    width="{AvatarSize.NORMAL}"
-                    height="{AvatarSize.NORMAL}"
-                    alt="{$page.data.userData.login} avatar"
-                    />
+                <UserAvatar userData={$page.data.userData} size={AvatarSize.NORMAL} bind:askForAnAvatarAgain />
             </label>
             <input
                 type="file"
@@ -64,19 +58,7 @@
         </form>
         <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
             <LoginLabel userData={$page.data.userData} />
-        ещё:
-        {#each $page.data.passiveUsersData as userData}
-        <br />
-            {userData.id}
-            {userData.login}
-            <Button buttonType={ButtonType.input} type="submit" value="выйти" formaction="passport/loginout/{userData.id}">выйти</Button>
-        {/each}
-        <br />
-
-        <Button buttonType={ButtonType.input} buttonTheme={ButtonTheme.transparent} type="submit" value="выйти из всех" formaction="passport/loginout">
-            <Exit />
-            выйти из всех
-        </Button>
+            <PassiveUsersLabelsList passiveUsersData={$page.data.passiveUsersData} />
         </form>
     </main>
 </div>
@@ -128,10 +110,6 @@
 
         cursor: pointer;
         overflow: hidden;
-    }
-
-    .avatar-img {
-        pointer-events: none;
     }
     
     .avatar-input {

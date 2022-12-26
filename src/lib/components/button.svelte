@@ -13,6 +13,8 @@
     export enum ButtonSize {
         none = 'none',
         m = 'm',
+        s = 's',
+        xs = 'xs'
     }
 </script>
 
@@ -50,6 +52,16 @@
         gap: 6px;
 
         cursor: pointer;
+    }
+
+    .button.xs {
+        padding: 4px 9px;
+        border-radius: 4px;
+    }
+
+    .button.s {
+        padding: 9px 16px;
+        border-radius: 9px;
     }
 
     .button.m {
