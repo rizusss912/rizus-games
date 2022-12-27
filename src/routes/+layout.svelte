@@ -1,11 +1,14 @@
 <script lang="ts">
-	import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
+	import TabNavigation from '$lib/components/tab-navigation.svelte';
+import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
 	import 'normalize.css/normalize.css';
 </script>
 
 <slot />
 
 <Wallpaper />
+<TabNavigation />
+
 <style>
 	:root {
 		--background-color: white;
@@ -15,6 +18,12 @@
 		--secondary-text-color: rgba(62, 62, 62, 0.8);
 
 		font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+		min-height: 100vh;
+	}
+
+	:global(body) {
+		min-height: 100vh;
 	}
 
 	@media (prefers-color-scheme: dark) {

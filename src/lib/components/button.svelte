@@ -4,6 +4,7 @@
         button,
         input
     }
+
     export enum ButtonTheme {
         primary = 'primary',
         secondary = 'secondary',
@@ -71,6 +72,12 @@
 
     .button.primary {
         background: var(--primary-color);
+        color: var(--primary-text-color);
+    }
+
+    .button.secondary {
+        background: transparent;
+        box-shadow: inset 0px 0px 0px 1px var(--secondary-text-color);
         color: var(--primary-text-color);
     }
 

@@ -2,8 +2,7 @@
     import { enhance } from "$app/forms";
 	import { invalidate, invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
-	import Button, { ButtonTheme, ButtonType } from "$lib/components/button.svelte";
-	import Exit from "$lib/icons/exit.svelte";
+	import Button, { ButtonType } from "$lib/components/button.svelte";
 	import LoginLabel from "$passport/login-label.svelte";
 	import PassiveUsersLabelsList from "$passport/passive-users-labels-list.svelte";
 	import type { SubmitFunction } from "@sveltejs/kit";
