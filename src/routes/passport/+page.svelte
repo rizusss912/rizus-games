@@ -64,9 +64,9 @@
                 <Button
                 buttonType={ButtonType.a}
                 buttonTheme={ButtonTheme.transparent}
-                href="passport/registration"
+                href="passport/login"
                 >
-                Добавить аккаунт
+                добавить аккаунт
                 </Button>
             <Button buttonType={ButtonType.input} buttonTheme={ButtonTheme.transparent} type="submit" value="выйти из всех" formaction="passport/loginout">
                 <Exit />

@@ -1,6 +1,8 @@
 <script lang="ts">
+	import BrowserTheme from '$lib/components/browser-theme.svelte';
 	import TabNavigation from '$lib/components/tab-navigation.svelte';
-import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
+	import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
+
 	import 'normalize.css/normalize.css';
 </script>
 
@@ -8,6 +10,7 @@ import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
 
 <Wallpaper />
 <TabNavigation />
+<BrowserTheme />
 
 <style>
 	:root {

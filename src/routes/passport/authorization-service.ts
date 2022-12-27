@@ -15,7 +15,7 @@ const TOKEN_COOKIE: Record<TokenType, Cookies> = {
 	[TokenType.REFRESH]: Cookies.REFRESH_TOKEN
 };
 const TOKEN_LIFETIME_SEC: Record<TokenType, number> = {
-	[TokenType.ACCESS]: 15, // 15 sec
+	[TokenType.ACCESS]: 15 * 60, // 15 min
 	[TokenType.REFRESH]: 90 * 24 * 60 * 60 // 90 days
 };
 

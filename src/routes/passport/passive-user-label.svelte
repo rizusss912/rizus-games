@@ -49,7 +49,7 @@
 
         width: 100%;
 
-        color: var(--primary-text-color);
+        color: var(--main-text-color);
 
         border-radius: 12px;
     }

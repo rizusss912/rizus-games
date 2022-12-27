@@ -64,6 +64,9 @@ export const handle = sequence(
 	}
 );
 
+/**
 export const handleError: HandleServerError = async ({ event }) => {
 	console.error(`ERROR (${event.request.method}) ${event.url.pathname}`);
 };
+
+ */
