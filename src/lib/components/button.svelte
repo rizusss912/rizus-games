@@ -20,6 +20,9 @@
 </script>
 
 <script lang="ts">
+	import { browser } from "$app/environment";
+
+
     export let buttonType: ButtonType = ButtonType.button;
     export let buttonTheme: ButtonTheme = ButtonTheme.primary;
     export let size: ButtonSize | null = ButtonSize.m;
@@ -27,6 +30,9 @@
     export let value: string | null = null;
     export let formaction: string | null = null;
     export let formmethod: string | null = null;
+    export let href: string | null = null;
+
+    const id = browser ? Math.random() : crypto.randomUUID();
 
     function getElementName(buttonType: ButtonType) {
         const elementNameMap: Record<ButtonType, string> = {
@@ -39,10 +45,10 @@
     }
 </script>
 
-<svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}">
+<svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}" {href} for={id}>
     <slot />
     {#if buttonType === ButtonType.input}
-        <input {type} {value} {formmethod} {formaction} />
+        <input {type} {value} {formmethod} {formaction} {id} />
     {/if}
 </svelte:element>
 
@@ -53,6 +59,8 @@
         gap: 6px;
 
         cursor: pointer;
+
+        text-decoration: none;
     }
 
     .button.xs {

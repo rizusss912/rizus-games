@@ -2,13 +2,14 @@
     import { enhance } from "$app/forms";
 	import { invalidate, invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
-	import Button, { ButtonType } from "$lib/components/button.svelte";
+	import Button, { ButtonTheme, ButtonType } from "$lib/components/button.svelte";
 	import LoginLabel from "$passport/login-label.svelte";
 	import PassiveUsersLabelsList from "$passport/passive-users-labels-list.svelte";
 	import type { SubmitFunction } from "@sveltejs/kit";
 	import { onMount } from "svelte";
     import UserAvatar from "$lib/components/user-avatar.svelte";
 	import { AvatarSize } from "$lib/enums/avatar-size";
+	import Exit from "$lib/icons/exit.svelte";
 </script>
 
 
@@ -42,7 +43,7 @@
     <main>
         <form on:change={handleChangeForm} method="POST" action="passport/{$page.data.userData.id}/avatar" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
             <label class="avatar-label" for="avatar">
-                <UserAvatar userData={$page.data.userData} size={AvatarSize.NORMAL} bind:askForAnAvatarAgain />
+                <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} bind:askForAnAvatarAgain />
             </label>
             <input
                 type="file"
@@ -58,6 +59,24 @@
         <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
             <LoginLabel userData={$page.data.userData} />
             <PassiveUsersLabelsList passiveUsersData={$page.data.passiveUsersData} />
+
+            <div class="actions">
+                <Button
+                buttonType={ButtonType.a}
+                buttonTheme={ButtonTheme.transparent}
+                href="passport/registration"
+                >
+                Добавить аккаунт
+                </Button>
+            <Button buttonType={ButtonType.input} buttonTheme={ButtonTheme.transparent} type="submit" value="выйти из всех" formaction="passport/loginout">
+                <Exit />
+                {#if $page.data.passiveUsersData.length}
+                    выйти из всех
+                {:else}
+                    выйти
+                {/if}
+            </Button>
+            </div>
         </form>
     </main>
 </div>

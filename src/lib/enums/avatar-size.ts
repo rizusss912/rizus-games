@@ -1,5 +1,8 @@
 export enum AvatarSize {
-	BIG = 500,
-	NORMAL = 200,
-	ICON = 100
+	xxl = 500,
+	xl = 200,
+	l = 100,
+	m = 42,
+	s = 24,
+	xs = 18
 }

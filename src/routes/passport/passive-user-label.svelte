@@ -5,6 +5,9 @@
 </script>
 
 <script lang="ts">
+	import UserAvatar from "$lib/components/user-avatar.svelte";
+	import { AvatarSize } from "$lib/enums/avatar-size";
+
     export let userData: UserData;
 </script>
 
@@ -13,11 +16,14 @@
     buttonTheme={ButtonTheme.secondary}
     buttonType={ButtonType.input}
     size={ButtonSize.m}
-    formaction="passport/loginout/{userData.id}"
-    formmethod="POST"
+    type="submit"
+    formaction="passport/checkout/{userData.id}"
     >
     <div class="wrapper">
-        {userData.login}
+        <div class="main-info">
+            <UserAvatar {userData} size={AvatarSize.m} />
+            {userData.login}
+        </div>
 
         <div class="actions">
             <Button
@@ -59,5 +65,11 @@
         flex-direction: row;
         gap: 8px;
         opacity: 0;
+    }
+
+    .main-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 </style>

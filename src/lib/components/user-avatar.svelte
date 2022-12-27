@@ -30,5 +30,6 @@
 <style>
     img {
         pointer-events: none;
+        border-radius: 50%;
     }
 </style>
