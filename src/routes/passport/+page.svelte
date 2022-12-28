@@ -10,6 +10,7 @@
     import UserAvatar from "$lib/components/user-avatar.svelte";
 	import { AvatarSize } from "$lib/enums/avatar-size";
 	import Exit from "$lib/icons/exit.svelte";
+    import Plus from "$lib/icons/plus.svelte";
 </script>
 
 
@@ -66,7 +67,8 @@
                 buttonTheme={ButtonTheme.transparent}
                 href="passport/login"
                 >
-                добавить аккаунт
+                    <Plus />
+                    добавить аккаунт
                 </Button>
             <Button buttonType={ButtonType.input} buttonTheme={ButtonTheme.transparent} type="submit" value="выйти из всех" formaction="passport/loginout">
                 <Exit />
@@ -149,5 +151,12 @@
 
         width: 100%;
         height: 100%;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: space-between;
+
+        width: 100%;
     }
 </style>

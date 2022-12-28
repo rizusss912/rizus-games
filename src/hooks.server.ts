@@ -1,4 +1,3 @@
-import type { HandleServerError } from '@sveltejs/kit';
 import { connectPassortBD } from './routes/passport/bd/bd';
 import { resetBD } from './routes/passport/bd/migrations/reset-bd';
 import { BackandAppFilesService } from '$lib/api/s3';
@@ -14,7 +13,7 @@ const server = writable<{
 	revertedBd: boolean;
 }>({
 	needToRevertBD: false,
-	revertedBd: true,
+	revertedBd: false,
 	needUploadBackandAppFilesToStatic: process.env.NODE_ENV === 'production',
 	uploadedBackandAppFilesToStatic: false
 });

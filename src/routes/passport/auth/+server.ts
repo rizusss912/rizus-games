@@ -1,7 +1,7 @@
 import type { RequestEvent } from '../(forms)/registration/anonymous/$types';
 import { AuthorizationService } from '../authorization-service';
 import { PassportModel } from '../bd/models/passport-model';
-import { error, redirect, type RequestHandler } from '@sveltejs/kit';
+import { error, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async (event: RequestEvent) => {
 	console.debug(`(GET) /passport/auth`);
@@ -9,6 +9,7 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 
 	if (accessToken) {
 		const { userId, passiveUserIds } = await accessToken.getActiveAndPassiveUserIds();
+		console.log(userId, passiveUserIds);
 
 		//NOTE(rizus): если нет активного юзера, то редиректим на login, чтобы пользователь сам выбрал его
 		if (!userId) {

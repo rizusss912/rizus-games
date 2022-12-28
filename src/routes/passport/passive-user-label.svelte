@@ -17,7 +17,7 @@
     buttonType={ButtonType.input}
     size={ButtonSize.m}
     type="submit"
-    formaction="passport/checkout/{userData.id}"
+    formaction="passport/{userData.id}/checkout"
     >
     <div class="wrapper">
         <div class="main-info">

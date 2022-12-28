@@ -55,9 +55,13 @@ export const actions: Actions = {
 				});
 			} else {
 				const lastAuthData = await token.getActiveAndPassiveUserIds();
-				const passiveUserIds = lastAuthData.userId
-					? [lastAuthData.userId, ...lastAuthData.passiveUserIds]
-					: lastAuthData.passiveUserIds;
+				const passiveUserIds = [
+					...new Set(
+						lastAuthData.userId
+							? [lastAuthData.userId, ...lastAuthData.passiveUserIds]
+							: lastAuthData.passiveUserIds.filter((id) => id !== lastAuthData.userId)
+					)
+				];
 				await AuthorizationService.refreshTokens({
 					accessToken,
 					refreshToken,

@@ -106,6 +106,7 @@ export class Token extends PassportModel {
 
 	static async createToken({ userId, transaction, type, passiveUserIds }: CreateTokenData) {
 		console.debug(`[Token] createToken. userId: ${userId}, type: ${type}`);
+		passiveUserIds = [...new Set(passiveUserIds.filter((id) => userId !== id))];
 		const token = await Token.query(transaction).insert({ [Token.columns.TYPE]: type });
 		const generalTokenData = {
 			[UserToken.columns.TOKEN_ID]: token.id

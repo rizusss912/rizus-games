@@ -1,13 +1,13 @@
 import { AuthorizationService } from '$passport/authorization-service';
 import { PassportModel } from '$passport/bd/models/passport-model';
 import { error } from '@sveltejs/kit';
-import type { RequestEvent, RequestHandler } from './$types';
+import type { RequestEvent, RequestHandler } from './[userId]/$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 
 const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');
 
 export const POST: RequestHandler = async (event: RequestEvent) => {
-	console.debug(`(POST) /passport/checkout/${event.params.userId}`);
+	console.debug(`(POST) /passport/${event.params.userId}/checkout`);
 
 	const newActiveUserId = parseIntOrThrowError(event.params.userId, invalidUserIdError);
 	const { accessToken, refreshToken } = await AuthorizationService.getTokens(event);
@@ -45,7 +45,7 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 		throw error;
 	}
 
-	console.debug(`(POST) /passport/checkout/${event.params.userId} SUCCESS`);
+	console.debug(`(POST) /passport/${event.params.userId}/checkout SUCCESS`);
 
 	return new Response(null, { status: 200 });
 };

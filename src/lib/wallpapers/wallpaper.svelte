@@ -18,7 +18,6 @@
     import desert_1600w_5 from './desert/1600w/5.jpg';
 
 	import { ColorScheme, colorScheme } from '$lib/components/browser-theme.svelte';
-	import { browser } from '$app/environment';
 
     type Index = 1 | 2 | 3 | 4 | 5;
 
