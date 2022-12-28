@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
-	import Link from '$lib/texts/link.svelte';
+	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
+	import InputText from '$lib/components/input-text.svelte';
 	import {
 		LOGIN_MAX_LENGTH,
 		LOGIN_MIN_LENGTH,
@@ -8,7 +9,7 @@
 	} from '../form.const';
 </script>
 
-<input
+<InputText
 	type="text"
 	name="login"
 	id="login"
@@ -17,9 +18,8 @@
 	required
 	minlength={LOGIN_MIN_LENGTH}
 	maxlength={LOGIN_MAX_LENGTH}
-	autofocus
-/>
-<input
+	/>
+<InputText
 	type="password"
 	name="password"
 	id="password"
@@ -28,7 +28,24 @@
 	minlength={PASSWORD_MIN_LENGTH}
 	maxlength={PASSWORD_MAX_LENGTH}
 	required
-/>
-<input type="submit" value="Войти" accesskey="s" />
+	/>
 
-<Link href="./registration">Зарегистрироваться</Link>
+<div class="actions">
+	<Button buttonTheme={ButtonTheme.primary} buttonType={ButtonType.input} type="submit" value="Войти">
+		Войти
+	</Button>
+	<Button buttonTheme={ButtonTheme.link} buttonType={ButtonType.a} href="./registration">
+		Зарегистрироваться
+	</Button>
+</div>
+
+<style>
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+
+		margin-top: 12px;
+	}
+</style>

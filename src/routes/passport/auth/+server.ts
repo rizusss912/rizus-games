@@ -9,7 +9,6 @@ export const GET: RequestHandler = async (event: RequestEvent) => {
 
 	if (accessToken) {
 		const { userId, passiveUserIds } = await accessToken.getActiveAndPassiveUserIds();
-		console.log(userId, passiveUserIds);
 
 		//NOTE(rizus): если нет активного юзера, то редиректим на login, чтобы пользователь сам выбрал его
 		if (!userId) {

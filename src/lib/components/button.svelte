@@ -9,6 +9,7 @@
         primary = 'primary',
         secondary = 'secondary',
         transparent = 'transparent',
+        link = 'link',
     }
 
     export enum ButtonSize {
@@ -94,6 +95,19 @@
         color: var(--secondary-text-color);
         fill: var(--secondary-text-color);
     }
+
+    .button.link {
+		text-decoration: none;
+		color: #6292ff;
+
+		transition: color, 0.2s;
+	}
+
+	.button.link:hover,
+	.button.link:focus,
+	.button.link:active {
+		color: #a1beff;
+	}
 
     input {
         display: none;
