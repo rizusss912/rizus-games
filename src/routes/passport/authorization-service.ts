@@ -96,11 +96,9 @@ export class AuthorizationService {
 		const users = await User.getUsersByUserIds([userId, ...passiveUserIds]);
 		//TODO надо оптимизировать
 		const usersDataPromises = users.map((user) => user.getData());
-
 		const usersData = await Promise.all(usersDataPromises);
-
-		let userData: UserData | undefined;
 		const passiveUsersData: UserData[] = [];
+		let userData: UserData | undefined;
 
 		for (const data of usersData) {
 			if (data.id === userId) {

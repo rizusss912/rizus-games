@@ -18,6 +18,7 @@
     import desert_1600w_5 from './desert/1600w/5.jpg';
 
 	import { ColorScheme, colorScheme } from '$lib/components/browser-theme.svelte';
+	import { browser } from "$app/environment";
 
     type Index = 1 | 2 | 3 | 4 | 5;
 
@@ -52,10 +53,8 @@
         lastIndex = index;
 
         if (index + 1 > 5) {
-            console.log(0);
             index = 1;
         } else {
-            console.log(index + 1);
             index += 1;
         }
 
@@ -79,10 +78,6 @@
     }
 
     function getClassByIndex(index: Index, lastIndex: Index | null): Class | null {
-        if (lastIndex !== null) {
-            return null;
-        }
-
         if (index === TARGET_INDEX_MAP[ColorScheme.DARK]) {
             return Class.NIGHT;
         }
@@ -95,11 +90,11 @@
     }
 </script>
 
-<img loading="lazy" class:not-active={index !== 1} class={getClassByIndex(1, lastIndex)} style="z-index: {getZIndexByIndex(1, index)};" srcset="{desert_800w_1} 800w, {desert_1200w_1} 1200w, {desert_1600w_1} 1600w" alt="desert wallpaper" />
-<img loading="lazy" class:not-active={index !== 2} class={getClassByIndex(2, lastIndex)} style="z-index: {getZIndexByIndex(2, index)};" srcset="{desert_800w_2} 800w, {desert_1200w_2} 1200w, {desert_1600w_2} 1600w" alt="desert wallpaper" />
-<img loading="eager" class:not-active={index !== 3} class={getClassByIndex(3, lastIndex)} style="z-index: {getZIndexByIndex(3, index)};" srcset="{desert_800w_3} 800w, {desert_1200w_3} 1200w, {desert_1600w_3} 1600w" alt="desert wallpaper" />
-<img loading="lazy" class:not-active={index !== 4} class={getClassByIndex(4, lastIndex)} style="z-index: {getZIndexByIndex(4, index)};" srcset="{desert_800w_4} 800w, {desert_1200w_4} 1200w, {desert_1600w_4} 1600w" alt="desert wallpaper" />
-<img loading="eager" class:not-active={index !== 5} class={getClassByIndex(5, lastIndex)} style="z-index: {getZIndexByIndex(5, index)};" srcset="{desert_800w_5} 800w, {desert_1200w_5} 1200w, {desert_1600w_5} 1600w" alt="desert wallpaper" />
+<img loading="lazy" class:not-active={index !== 1} class:not-animation={lastIndex === null && !browser} class={getClassByIndex(1, lastIndex)} style="z-index: {getZIndexByIndex(1, index)};" srcset="{desert_800w_1} 800w, {desert_1200w_1} 1200w, {desert_1600w_1} 1600w" alt="desert wallpaper" />
+<img loading="lazy" class:not-active={index !== 2} class:not-animation={lastIndex === null && !browser} class={getClassByIndex(2, lastIndex)} style="z-index: {getZIndexByIndex(2, index)};" srcset="{desert_800w_2} 800w, {desert_1200w_2} 1200w, {desert_1600w_2} 1600w" alt="desert wallpaper" />
+<img loading="eager" class:not-active={index !== 3} class:not-animation={lastIndex === null && !browser} class={getClassByIndex(3, lastIndex)} style="z-index: {getZIndexByIndex(3, index)};" srcset="{desert_800w_3} 800w, {desert_1200w_3} 1200w, {desert_1600w_3} 1600w" alt="desert wallpaper" />
+<img loading="lazy" class:not-active={index !== 4} class:not-animation={lastIndex === null && !browser} class={getClassByIndex(4, lastIndex)} style="z-index: {getZIndexByIndex(4, index)};" srcset="{desert_800w_4} 800w, {desert_1200w_4} 1200w, {desert_1600w_4} 1600w" alt="desert wallpaper" />
+<img loading="eager" class:not-active={index !== 5} class:not-animation={lastIndex === null && !browser} class={getClassByIndex(5, lastIndex)} style="z-index: {getZIndexByIndex(5, index)};" srcset="{desert_800w_5} 800w, {desert_1200w_5} 1200w, {desert_1600w_5} 1600w" alt="desert wallpaper" />
 
 <style>
     img {
@@ -117,6 +112,10 @@
 
     .not-active {
         animation: last 3s forwards ease-in-out;
+    }
+
+    .not-animation {
+        animation: none;
     }
 
     .night,

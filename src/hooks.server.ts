@@ -4,6 +4,7 @@ import { BackandAppFilesService } from '$lib/api/s3';
 import { sequence } from '@sveltejs/kit/hooks';
 import { get, writable } from 'svelte/store';
 import type { Knex } from 'knex';
+import { resetForSsr } from '$lib/components/singleton.svelte';
 
 const server = writable<{
 	passportBd?: Knex;
@@ -59,6 +60,7 @@ export const handle = sequence(
 		return await resolve(event);
 	},
 	async ({ event, resolve }) => {
+		resetForSsr();
 		return await resolve(event);
 	}
 );

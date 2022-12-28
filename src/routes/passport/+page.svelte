@@ -104,7 +104,6 @@
         align-items: center;
         gap: 8px;
 
-
         background-color: var(--background-color);
 
         margin: calc(var(--avatar-offset) + 50px) 50px 50px 50px;

@@ -69,6 +69,11 @@ export class PasswordAuth extends Auth {
 		return await PasswordAuth.query().whereIn(PasswordAuth.columns.USER_ID, userIds);
 	}
 
+	static async setLoginByUserId(userId: number, login: string): Promise<void> {
+		await PasswordAuth.query().patch({ login }).where(PasswordAuth.columns.USER_ID, '=', userId);
+		return;
+	}
+
 	static async createUserWithPasswordAuth(data: AddPasswordAuthForUserData) {
 		console.debug(
 			`[PasswordAuth] createUserWithPasswordAuth. login: ${data.login}, password: ${data.password}`

@@ -8,17 +8,19 @@
 </script>
 
 
-<div class="list">
+<ul class="list">
     {#each passiveUsersData as userData}
         <PassiveUserLabel {userData}/>
     {/each}
-</div>
+</ul>
 
 <style>
     .list {
         display: flex;
         flex-direction: column;
         gap: 8px;
+
+        padding: 0;
 
         width: 100%;
     }

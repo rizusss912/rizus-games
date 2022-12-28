@@ -33,7 +33,7 @@
     export let formmethod: string | null = null;
     export let href: string | null = null;
 
-    const id = browser ? Math.random() : crypto.randomUUID();
+    const id = browser ? Math.random() * 1000 : crypto.randomUUID();
 
     function getElementName(buttonType: ButtonType) {
         const elementNameMap: Record<ButtonType, string> = {
@@ -47,10 +47,10 @@
 </script>
 
 <svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}" {href} for={id}>
-    <slot />
     {#if buttonType === ButtonType.input}
         <input {type} {value} {formmethod} {formaction} {id} />
     {/if}
+    <slot />
 </svelte:element>
 
 <style>
@@ -62,6 +62,25 @@
         cursor: pointer;
 
         text-decoration: none;
+
+        position: relative;
+    }
+
+    input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+
+        background: transparent;
+        color: transparent;
+        border: none;
+        border-radius: inherit;
+
+        pointer-events: none;
+
+        cursor: pointer;
     }
 
     .button.xs {
@@ -86,8 +105,17 @@
 
     .button.secondary {
         background: transparent;
-        box-shadow: inset 0px 0px 0px 1px var(--secondary-text-color);
+        box-shadow: inset 0px 0px 1px .5px var(--secondary-text-color);
         color: var(--primary-text-color);
+
+        transition: box-shadow, .2s;
+    }
+
+    .button.secondary:hover,
+    .button.secondary:active,
+    .button.secondary:focus,
+    .button.secondary:focus-within {
+        box-shadow: inset 0px 0px 0px 1px var(--secondary-text-color);
     }
 
     .button.transparent {
@@ -108,8 +136,4 @@
 	.button.link:active {
 		color: #a1beff;
 	}
-
-    input {
-        display: none;
-    }
 </style>

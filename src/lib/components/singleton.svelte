@@ -2,6 +2,10 @@
     import { onDestroy, type SvelteComponent } from "svelte";
 
     const countersMap = new Map();
+
+    export function resetForSsr() {
+        countersMap.clear();
+    }
 </script>
 
 <script lang="ts">
@@ -10,7 +14,7 @@
 
     let lastId: string | null = null;
 
-    $: isFirst = onChangeId(id);
+    let isFirst = onChangeId(id);
 
     function onChangeId(id: string) {
         const counter: number = countersMap.get(id) ?? 0;
@@ -36,6 +40,6 @@
 
 {#if isFirst}
     <svelte:component this={component} {id} />
-    {:else}
+{:else}
     <slot />
 {/if}

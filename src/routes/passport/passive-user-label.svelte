@@ -12,33 +12,35 @@
 </script>
 
 
-<Button
-    buttonTheme={ButtonTheme.secondary}
-    buttonType={ButtonType.input}
-    size={ButtonSize.m}
-    type="submit"
-    formaction="passport/{userData.id}/checkout"
-    >
-    <div class="wrapper">
-        <div class="main-info">
-            <UserAvatar {userData} size={AvatarSize.m} />
-            {userData.login}
-        </div>
+<li class="main-wrapper">
+    <Button
+        buttonTheme={ButtonTheme.secondary}
+        buttonType={ButtonType.input}
+        size={ButtonSize.m}
+        type="submit"
+        formaction="passport/{userData.id}/checkout"
+        >
+        <div class="wrapper">
+            <div class="main-info">
+                <UserAvatar {userData} size={AvatarSize.m} />
+                {userData.login}
+            </div>
 
-        <div class="actions">
-            <Button
-                buttonType={ButtonType.input}
-                buttonTheme={ButtonTheme.transparent}
-                size={ButtonSize.none}
-                type="submit"
-                value="выйти"
-                formaction="passport/loginout/{userData.id}"
-                >
-                <Exit />
-            </Button>
+            <div class="actions">
+                <Button
+                    buttonType={ButtonType.input}
+                    buttonTheme={ButtonTheme.transparent}
+                    size={ButtonSize.none}
+                    type="submit"
+                    value="выйти"
+                    formaction="passport/loginout/{userData.id}"
+                    >
+                    <Exit />
+                </Button>
+            </div>
         </div>
-    </div>
-</Button>
+    </Button>
+</li>
 
 <style>
     .wrapper {
@@ -54,9 +56,18 @@
         border-radius: 12px;
     }
 
+    .main-wrapper {
+        list-style-type: none;
+    }
+
     .wrapper:hover > .actions,
     .wrapper:active > .actions,
-    .wrapper:focus > .actions {
+    .wrapper:focus > .actions,
+    .wrapper:focus-within > .actions,
+    .main-wrapper:hover .actions,
+    .main-wrapper:active .actions,
+    .main-wrapper:focus .actions,
+    .main-wrapper:focus-within .actions {
         opacity: 1;
     }
 
@@ -65,6 +76,8 @@
         flex-direction: row;
         gap: 8px;
         opacity: 0;
+
+        transition: opacity, .2s;
     }
 
     .main-info {

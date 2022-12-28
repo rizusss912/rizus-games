@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
 	import InputText from '$lib/components/input-text.svelte';
 	import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
 </script>
@@ -15,7 +16,9 @@
 	/>
 
 <div class="actions">
-	<input type="submit" value="Далее" accesskey="s" />
+	<Button buttonTheme={ButtonTheme.primary} buttonType={ButtonType.input} type="submit" value="Далее">
+		Далее
+	</Button>
 </div>
 
 <style>

@@ -36,28 +36,21 @@
         padding: 10px;
     }
 
-    .login:hover > .actions {
-        display: block;
-        animation: ani .2s forwards ease-in-out;
+    .login:hover > .actions,
+    .login:active > .actions,
+    .login:focus > .actions,
+    .login:focus-within > .actions {
+        opacity: 1;
     }
 
     .actions {
-        display: none;
+        opacity: 0;
+        transition: .2s;
 
         position: absolute;
         left: 100%;
         top: 50%;
 
         transform: translateY(-50%);
-    }
-
-    @keyframes ani {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    .exit-icon {
-        width: 24px;
-        height: 24px;
     }
 </style>
