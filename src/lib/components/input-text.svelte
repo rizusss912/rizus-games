@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Button from "$lib/components/button.svelte";
+
+
 	export let name: string;
  	export let id: string;
 	export let placeholder: string | null = null;
@@ -8,6 +11,7 @@
 	export let minlength: number | null = null;
 	export let maxlength: number | null = null;
 	export let value: string | null = null;
+	export let autofocus: Button = false;
 	
 	$: placeholderInInput = !value;
 
@@ -18,7 +22,21 @@
 
 
 <label for={id}>
-	<input use:typeAction {name} {id} {placeholder} {autocomplete} {required} {minlength} {maxlength} bind:value />
+	<input
+		use:typeAction
+		{name}
+		{id}
+		{placeholder}
+		{autocomplete}
+		{required}
+		{minlength}
+		{maxlength}
+		{autofocus}
+		bind:value
+		on:focus
+		on:focusout
+		on:blur
+		/>
 	<span class="placeholder" class:in-input={placeholderInInput}>{placeholder}</span>
 </label>
 

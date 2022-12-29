@@ -13,7 +13,6 @@
     import Plus from "$lib/icons/plus.svelte";
 </script>
 
-
 <script lang="ts">
     let jsIsActive = false;
 

@@ -3,6 +3,29 @@ import type { RequestEvent, RequestHandler } from './$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 import { auth } from '$passport/passport.utils';
 import { PasswordAuth } from '$passport/bd/models/password-auth';
+import { selectFormDataAndValidate } from '$lib/utils/form';
+import {
+	ValidationError,
+	type JsonEndpointValue,
+	jsonValidationFactory,
+	merge
+} from '$lib/utils/validation';
+import { StringOnly } from '$lib/utils/default-validators';
+import { validators } from '$passport/validators';
+
+class UniqueLogin extends StringOnly {
+	async validate(value: JsonEndpointValue): Promise<void> {
+		super.validate(value);
+
+		if (await PasswordAuth.getAuthByLogin(value)) {
+			throw new ValidationError('Пользоватеель с таким именем уже существует');
+		}
+	}
+}
+
+const { getValidator } = jsonValidationFactory<{ login: string }>({
+	login: merge(...validators.login, new UniqueLogin())
+});
 
 export const POST: RequestHandler = async (event: RequestEvent) => {
 	const userIdInParams = event.params.userId;
@@ -23,7 +46,7 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 		] = await Promise.all([
 			authPromise,
 			PasswordAuth.getAuthByUserId(changeableUserId),
-			event.request.json()
+			selectFormDataAndValidate(event, getValidator)
 		]);
 
 		if (!passwordAuth) {

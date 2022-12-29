@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+    import { browser } from "$app/environment";
+
     export enum ButtonType {
         a,
         button,
@@ -21,9 +23,6 @@
 </script>
 
 <script lang="ts">
-	import { browser } from "$app/environment";
-
-
     export let buttonType: ButtonType = ButtonType.button;
     export let buttonTheme: ButtonTheme = ButtonTheme.primary;
     export let size: ButtonSize | null = ButtonSize.m;
