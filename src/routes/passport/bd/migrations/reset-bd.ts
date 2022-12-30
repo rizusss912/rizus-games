@@ -6,11 +6,30 @@ import { PasswordAuth } from '../models/password-auth';
 import { Token, TokenType } from '../models/token';
 import { User } from '../models/user';
 import { UserToken } from '../models/user-token';
+import { Avatar } from '$passport/bd/models/avatar';
+import { UserAvatar } from '$passport/bd/models/user-avatar';
 
 async function createUserTable(knex: Knex) {
 	await knex.schema.createTable(User.tableName, (user) => {
 		user.increments(User.columns.ID).primary();
 		user.timestamps();
+	});
+}
+
+async function createUserAvatarTable(knex: Knex) {
+	await knex.schema.createTable(UserAvatar.tableName, (avatar) => {
+		avatar.increments(UserAvatar.columns.ID).primary();
+		avatar.integer(UserAvatar.columns.AVATAR_ID).notNullable();
+		avatar.integer(UserAvatar.columns.USER_ID).notNullable();
+		avatar.timestamps();
+	});
+}
+
+async function createAvatarTable(knex: Knex) {
+	await knex.schema.createTable(Avatar.tableName, (avatar) => {
+		avatar.increments(Avatar.columns.ID).primary();
+		avatar.string(Avatar.columns.ORIGINAL_NAME).notNullable();
+		avatar.timestamps();
 	});
 }
 
@@ -83,9 +102,13 @@ export async function resetBD(knex: Knex) {
 	await knex.schema.dropTableIfExists(Token.tableName);
 	await knex.schema.dropTableIfExists(AnonymousAuth.tableName);
 	await knex.schema.dropTableIfExists(PasswordAuth.tableName);
+	await knex.schema.dropTableIfExists(UserAvatar.tableName);
 	await knex.schema.dropTableIfExists(User.tableName);
+	await knex.schema.dropTableIfExists(Avatar.tableName);
 
 	await createUserTable(knex);
+	await createAvatarTable(knex);
+	await createUserAvatarTable(knex);
 	await createAnonymousAuthsTable(knex);
 	await createPasswordAuthsTable(knex);
 	await createTokenTable(knex);

@@ -64,8 +64,8 @@ export class Token extends PassportModel {
 	static get relationMappings() {
 		return {
 			[User.tableName]: {
-				relation: User.ManyToManyRelation,
-				modelClass: Token,
+				relation: Token.ManyToManyRelation,
+				modelClass: User,
 				join: {
 					from: `${Token.tableName}.${Token.columns.ID}`,
 					through: {
@@ -76,7 +76,7 @@ export class Token extends PassportModel {
 				}
 			},
 			[UserToken.tableName]: {
-				relation: User.HasOneRelation,
+				relation: Token.HasOneRelation,
 				modelClass: UserToken,
 				join: {
 					from: `${Token.tableName}.${Token.columns.ID}`,

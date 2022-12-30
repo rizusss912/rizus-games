@@ -1,9 +1,11 @@
 import { AuthType } from '$lib/enums/auth-type';
+import type { Auth } from '$passport/bd/models/auth';
+import { Avatar } from '$passport/bd/models/avatar';
+import { UserAvatar } from '$passport/bd/models/user-avatar';
 import { AnonymousAuth } from './anonymous-auth';
-import { Auth } from './auth';
 import { PassportModel } from './passport-model';
 import { PasswordAuth } from './password-auth';
-import { Token, type AuthResult } from './token';
+import { Token } from './token';
 import { UserToken } from './user-token';
 
 export type UserData = {
@@ -38,7 +40,7 @@ export class User extends PassportModel {
 	static get relationMappings() {
 		return {
 			[Token.tableName]: {
-				relation: Token.ManyToManyRelation,
+				relation: User.ManyToManyRelation,
 				modelClass: Token,
 				join: {
 					from: `${User.tableName}.${User.columns.ID}`,
@@ -49,8 +51,36 @@ export class User extends PassportModel {
 					to: `${Token.tableName}.${Token.columns.ID}`
 				}
 			},
+			[UserToken.tableName]: {
+				relation: Avatar.HasManyRelation,
+				modelClass: UserToken,
+				join: {
+					from: `${User.tableName}.${User.columns.ID}`,
+					to: `${UserToken.tableName}.${UserToken.columns.USER_ID}`
+				}
+			},
+			[Avatar.tableName]: {
+				relation: User.ManyToManyRelation,
+				modelClass: Avatar,
+				join: {
+					from: `${User.tableName}.${User.columns.ID}`,
+					through: {
+						from: `${UserAvatar.tableName}.${UserAvatar.columns.USER_ID}`,
+						to: `${UserAvatar.tableName}.${UserAvatar.columns.AVATAR_ID}`
+					},
+					to: `${Avatar.tableName}.${Avatar.columns.ID}`
+				}
+			},
+			[UserAvatar.tableName]: {
+				relation: Avatar.HasOneRelation,
+				modelClass: UserAvatar,
+				join: {
+					from: `${User.tableName}.${User.columns.ID}`,
+					to: `${UserAvatar.tableName}.${UserAvatar.columns.USER_ID}`
+				}
+			},
 			[AnonymousAuth.tableName]: {
-				relation: AnonymousAuth.BelongsToOneRelation,
+				relation: User.BelongsToOneRelation,
 				modelClass: AnonymousAuth,
 				join: {
 					from: `${User.tableName}.${User.columns.ID}`,
@@ -58,7 +88,7 @@ export class User extends PassportModel {
 				}
 			},
 			[PasswordAuth.tableName]: {
-				relation: AnonymousAuth.BelongsToOneRelation,
+				relation: User.BelongsToOneRelation,
 				modelClass: PasswordAuth,
 				join: {
 					from: `${User.tableName}.${User.columns.ID}`,
@@ -70,11 +100,13 @@ export class User extends PassportModel {
 
 	static async getUsersByUserIds(userIds: number[]): Promise<User[]> {
 		console.debug(`[User] getUsersByUserIds. userIds: ${userIds || `[]`}`);
+
 		return await User.query().findByIds(userIds);
 	}
 
 	public async getData(): Promise<UserData> {
 		console.debug(`[User] getData. userId: ${this.id}`);
+
 		const auths = await User.getAuthsById(this.id);
 		const authTypes = Object.entries(auths)
 			.filter(([_, value]) => value)
@@ -85,6 +117,7 @@ export class User extends PassportModel {
 
 	public static async getAuthsById(userId: number): Promise<UserAuths> {
 		console.debug(`[User] getAuthsById. userId: ${userId}`);
+
 		const [anonymousAuth, passwordAuth] = await Promise.all([
 			AnonymousAuth.getAuthByUserId(userId),
 			PasswordAuth.getAuthByUserId(userId)
