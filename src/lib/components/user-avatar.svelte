@@ -21,7 +21,7 @@
 </script>
 
 <img
-    src="passport/{userData.id}/avatar/{size}/{avatarTimestempForReloadPicture}"
+    src="passport/avatar/{userData.id}/{size}/{avatarTimestempForReloadPicture}"
     width={size}
     height={size}
     alt="{userData.login} avatar"

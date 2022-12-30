@@ -41,7 +41,7 @@
 
 <div class="wrapper">
     <main>
-        <form on:change={handleChangeForm} method="POST" action="passport/{$page.data.userData.id}/avatar" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
+        <form on:change={handleChangeForm} method="POST" action="passport/avatar/{$page.data.userData.id}" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
             <label class="avatar-label" for="avatar">
                 <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} bind:askForAnAvatarAgain />
             </label>

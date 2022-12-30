@@ -1,4 +1,4 @@
-import type { RequestEvent, RequestHandler } from './$types';
+import type { RequestEvent, RequestHandler } from '../$types';
 import { selectFormDataAndValidate } from '$lib/utils/form';
 import { EndpointHandler, jsonValidationFactory, merge } from '$lib/utils/validation';
 import { Required } from '$lib/utils/default-validators';
