@@ -1,3 +1,4 @@
+import { DefaultAvatar } from '$passport/bd/models/default-avatars';
 import { PassportModel } from '$passport/bd/models/passport-model';
 import { User } from '$passport/bd/models/user';
 import { UserAvatar } from '$passport/bd/models/user-avatar';
@@ -45,6 +46,14 @@ export class Avatar extends PassportModel {
 				join: {
 					from: `${Avatar.tableName}.${Avatar.columns.ID}`,
 					to: `${UserAvatar.tableName}.${UserAvatar.columns.AVATAR_ID}`
+				}
+			},
+			[DefaultAvatar.tableName]: {
+				relation: DefaultAvatar.HasOneRelation,
+				modelClass: Avatar,
+				join: {
+					from: `${Avatar.tableName}.${Avatar.columns.ID}`,
+					to: `${DefaultAvatar.tableName}.${DefaultAvatar.columns.AVATAR_ID}`
 				}
 			}
 		};
