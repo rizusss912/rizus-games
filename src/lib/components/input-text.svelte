@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Button from "$lib/components/button.svelte";
-
+	import type { FieldValidationError } from "$lib/utils/validation";
+	import { createEventDispatcher } from "svelte";
 
 	export let name: string;
  	export let id: string;
@@ -12,35 +12,59 @@
 	export let maxlength: number | null = null;
 	export let value: string | null = null;
 	export let autofocus: Button = false;
+	export let error: FieldValidationError | null = null;
+
+	const dispatch = createEventDispatcher();
+
+	let touched = false;
 	
 	$: placeholderInInput = !value;
 
 	function typeAction(node: HTMLInputElement) {
         node.type = type;
     }
+
+	function focusHandler(event: FocusEvent) {
+		touched = true;
+		dispatch('focus', event);
+	}
 </script>
 
 
-<label for={id}>
-	<input
-		use:typeAction
-		{name}
-		{id}
-		{placeholder}
-		{autocomplete}
-		{required}
-		{minlength}
-		{maxlength}
-		{autofocus}
-		bind:value
-		on:focus
-		on:focusout
-		on:blur
-		/>
-	<span class="placeholder" class:in-input={placeholderInInput}>{placeholder}</span>
-</label>
+<div class="wrapper">
+	<label for={id} class:has-error={Boolean(error)} class:touched={touched}>
+		<input
+			use:typeAction
+			{name}
+			{id}
+			{placeholder}
+			{autocomplete}
+			{required}
+			{minlength}
+			{maxlength}
+			{autofocus}
+			bind:value
+			on:focus={focusHandler}
+			on:focusout
+			on:blur
+			on:change
+			on:input
+			/>
+		<span class="placeholder" class:in-input={placeholderInInput}>{placeholder}</span>
+	</label>
+	<span class="error">{error?.message ?? ''}</span>
+</div>
 
 <style>
+	.wrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+
+		width: 100%;
+	}
+
 	label {
 		position: relative;
 
@@ -51,13 +75,18 @@
 		width: 100%;
 	}
 
+	label:not(:focus-within).has-error.touched > .placeholder {
+		opacity: 1;
+		color: red;
+	}
+
 	.placeholder {
 		color: var(--secondary-text-color);
 		font-size: 14px;
 
 		max-height: 12px;
 
-		transition: font-size, opacity, .2s ease-in-out;
+		transition: font-size, opacity, color, .2s ease-in-out;
 		opacity: .5;
 	}
 
@@ -90,6 +119,10 @@
 		width: 100%;
 	}
 
+	label:focus-within + .error {
+		color: var(--secondary-text-color);
+	}
+
 	label:before,
 	label:after {
 		display: block;
@@ -107,10 +140,27 @@
 		width: 100%;
 	}
 
+	label.has-error.touched:before {
+		background: red;
+		width: 100%;
+	}
+
 	label:after {
 		width: 0;
 		transition: width .4s ease-in-out;
 
 		background: var(--primary-color);
+	}
+
+	.error {
+		transition: color, .4s ease-in-out;
+		color: red;
+
+		font-size: 12px;
+		min-height: 14px;
+	}
+
+	label:not(.touched) ~ .error {
+		opacity: 0;
 	}
 </style>

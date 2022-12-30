@@ -1,4 +1,7 @@
+import { writable } from 'svelte/store';
+
 export type JsonEndpointValue = string | number | boolean | File;
+export type ErrorsJson = Record<string, ErrorsJson | FieldValidationError | null>;
 export class ValidationError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -67,6 +70,26 @@ export function jsonValidationFactory<JSON extends Json>(shema: JsonShema) {
 	};
 }
 
+export function formValidationFactory<JSON extends Json>(
+	json: JSON,
+	getValidator: (json: JSON) => JsonHandler<JSON>
+) {
+	const errors = writable<ErrorsJson>({});
+	const hasErrors = writable<boolean>(false);
+	const validator = getValidator(json);
+
+	async function onChange() {
+		validator.format();
+		const out = await validator.getErrors();
+		errors.set(out.errors);
+		hasErrors.set(out.hasErrors);
+	}
+
+	onChange();
+
+	return { onChange, errors, hasErrors };
+}
+
 export class JsonHandler<JSON extends Json> {
 	private shema: JsonShema;
 	readonly json: JSON;
@@ -80,8 +103,61 @@ export class JsonHandler<JSON extends Json> {
 		return await JsonHandler.recursiveValidate(this.formatedJson, [], [], this.shema);
 	}
 
-	get formatedJson(): JSON {
+	public get formatedJson(): JSON {
 		return JsonHandler.recursiveFormat(this.json, {}, this.shema) as JSON;
+	}
+
+	public format(): JSON {
+		return JsonHandler.recursiveFormat(this.json, this.json, this.shema) as JSON;
+	}
+
+	public async getErrors(): Promise<{
+		errors: Record<string, FieldValidationError>;
+		hasErrors: boolean;
+	}> {
+		const hasErrors = { hasErrors: false };
+		const errors = await JsonHandler.recursiveGetErrorsJson(this.json, this.shema, {}, hasErrors);
+		return { errors, hasErrors: hasErrors.hasErrors };
+	}
+
+	private static async recursiveGetErrorsJson(
+		json: Json,
+		shema: JsonShema,
+		errorsJson: ErrorsJson,
+		hasErrors: { hasErrors: boolean }
+	) {
+		for (const [shemaKey, shemaValue] of Object.entries(shema)) {
+			const value = json[shemaKey];
+
+			if (shemaValue instanceof EndpointHandler) {
+				if (!JsonHandler.isEndpoint(value)) {
+					continue;
+				}
+
+				errorsJson[shemaKey] = null;
+
+				try {
+					await shemaValue.validate(value);
+				} catch (error) {
+					errorsJson[shemaKey] = error;
+					hasErrors.hasErrors = true;
+				}
+
+				continue;
+			}
+
+			if (JsonHandler.isEndpoint(value)) {
+				continue;
+			}
+
+			const nextErrorsJson: Json = {};
+
+			await JsonHandler.recursiveGetErrorsJson(value, shemaValue, nextErrorsJson, hasErrors);
+
+			errorsJson[shemaKey] = nextErrorsJson;
+		}
+
+		return errorsJson;
 	}
 
 	private static isEndpoint(value: JsonEndpointValue | Json): value is JsonEndpointValue {

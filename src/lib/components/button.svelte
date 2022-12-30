@@ -31,6 +31,7 @@
     export let formaction: string | null = null;
     export let formmethod: string | null = null;
     export let href: string | null = null;
+    export let disabled = false;
 
     const id = browser ? Math.random() * 1000 : crypto.randomUUID();
 
@@ -45,9 +46,9 @@
     }
 </script>
 
-<svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}" {href} for={id}>
+<svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}" {href} for={id} {disabled}>
     {#if buttonType === ButtonType.input}
-        <input {type} {value} {formmethod} {formaction} {id} />
+        <input {type} {value} {formmethod} {formaction} {id} {disabled} />
     {/if}
     <slot />
 </svelte:element>
@@ -108,6 +109,11 @@
         color: var(--primary-text-color);
 
         transition: box-shadow, .2s;
+    }
+
+    .button[disabled="true"] {
+        background: var(--secondary-text-color);
+        opacity: .3;
     }
 
     .button.secondary:hover,

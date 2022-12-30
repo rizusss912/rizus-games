@@ -16,9 +16,10 @@ import { getPassportOnAuthRedirect } from '../../passport.utils';
 import { validators } from '../../validators';
 import type { PageServerLoad } from './$types';
 
-type RegistraionFormData = {
+export type RegistraionFormData = {
 	login: string;
 	password: string;
+	passwordConfirm: string;
 };
 
 class UniqueLogin extends StringOnly {
