@@ -7,16 +7,10 @@
     export let userData: UserData;
     export let size: AvatarSize;
 
-    let avatarTimestempForReloadPicture: number = 0;
+    let avatarTimestempForReloadPicture: number = Date.now();
 
     export function askForAnAvatarAgain() {
         avatarTimestempForReloadPicture = Date.now();
-
-        setTimeout(() => avatarTimestempForReloadPicture = Date.now(), 200);
-        setTimeout(() => avatarTimestempForReloadPicture = Date.now(), 1000);
-        setTimeout(() => avatarTimestempForReloadPicture = Date.now(), 2000);
-        setTimeout(() => avatarTimestempForReloadPicture = Date.now(), 5000);
-        setTimeout(() => avatarTimestempForReloadPicture = Date.now(), 10000);
     }
 </script>
 

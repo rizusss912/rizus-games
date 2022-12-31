@@ -11,21 +11,29 @@
 	export let minlength: number | null = null;
 	export let maxlength: number | null = null;
 	export let value: string | null = null;
-	export let autofocus: Button = false;
+	export let autofocus: boolean = false;
 	export let error: FieldValidationError | null = null;
 
 	const dispatch = createEventDispatcher();
 
 	let touched = false;
+	let focused = false;
 	
 	$: placeholderInInput = !value;
+	$: touched = value ? focused || touched : touched;
 
 	function typeAction(node: HTMLInputElement) {
         node.type = type;
     }
 
-	function focusHandler(event: FocusEvent) {
+	function blurHandler(event: FocusEvent) {
 		touched = true;
+		focused = false;
+		dispatch('blur', event);
+	}
+
+	function focusHandler(event: FocusEvent) {
+		focused = true;
 		dispatch('focus', event);
 	}
 </script>
@@ -46,7 +54,7 @@
 			bind:value
 			on:focus={focusHandler}
 			on:focusout
-			on:blur
+			on:blur={blurHandler}
 			on:change
 			on:input
 			/>
