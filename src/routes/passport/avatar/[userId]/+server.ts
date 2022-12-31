@@ -3,9 +3,11 @@ import { selectFormDataAndValidate } from '$lib/utils/form';
 import { EndpointHandler, jsonValidationFactory, merge } from '$lib/utils/validation';
 import { Required } from '$lib/utils/default-validators';
 import { error } from '@sveltejs/kit';
-import { UserAvatarService } from '$lib/api/s3';
+import { AvatarService } from '$lib/api/s3';
 import { auth } from '../../passport.utils';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
+import { UserAvatar } from '$passport/bd/models/user-avatar';
+import { PassportModel } from '$passport/bd/models/passport-model';
 
 type AvatarFormData = {
 	avatar: File;
@@ -20,7 +22,7 @@ class AvatarFileValidator extends EndpointHandler {
 		}
 
 		try {
-			validationErrorText = await UserAvatarService.getValidAvatarError(value);
+			validationErrorText = await AvatarService.getValidAvatarError(value);
 		} catch (cause) {
 			throw new Error('не удалось прочитать файл', { cause });
 		}
@@ -39,7 +41,7 @@ const invalidUserIdError = error(404, 'Неверный идентификато
 export const POST: RequestHandler = async (event: RequestEvent) => {
 	const userIdInParams = event.params.userId;
 
-	console.debug(`(POST) /passport/user/${userIdInParams}/avatar`);
+	console.debug(`(POST) /passport/avatar/${userIdInParams}`);
 
 	const userId = parseIntOrThrowError(userIdInParams, invalidUserIdError);
 	const {
@@ -51,10 +53,12 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 	}
 
 	const { avatar } = await selectFormDataAndValidate<AvatarFormData>(event, getValidator);
-
+	const transaction = await PassportModel.startTransaction();
 	try {
-		await UserAvatarService.uploadUserAvatar(userId, avatar);
+		await UserAvatar.addAvatarToUser({ userId, avatar, transaction });
+		await transaction.commit();
 	} catch (err) {
+		await transaction.rollback();
 		throw error(500, 'не удалось изменить аватар');
 	}
 

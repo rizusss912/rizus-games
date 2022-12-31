@@ -1,6 +1,13 @@
 import { Avatar } from '$passport/bd/models/avatar';
 import { PassportModel } from '$passport/bd/models/passport-model';
 import { User } from '$passport/bd/models/user';
+import type { Transaction } from 'objection';
+
+type AddAvatarToUserData = {
+	userId: number;
+	avatar: File;
+	transaction: Transaction;
+};
 
 export class UserAvatar extends PassportModel {
 	static tableName = 'usersAvatars';
@@ -11,7 +18,9 @@ export class UserAvatar extends PassportModel {
 		AVATAR_ID: 'avatarId'
 	};
 
-	passwordHash!: string;
+	id!: number;
+	userId!: number;
+	avatarId!: number;
 
 	static jsonSchema = {
 		type: 'object',
@@ -21,10 +30,10 @@ export class UserAvatar extends PassportModel {
 				type: 'integer'
 			},
 			[UserAvatar.columns.USER_ID]: {
-				type: 'string'
+				type: 'integer'
 			},
 			[UserAvatar.columns.AVATAR_ID]: {
-				type: 'string'
+				type: 'integer'
 			}
 		}
 	};
@@ -48,5 +57,42 @@ export class UserAvatar extends PassportModel {
 				}
 			}
 		};
+	}
+
+	public static async addAvatarToUser({ userId, avatar, transaction }: AddAvatarToUserData) {
+		console.debug(`[UserAvatar] addAvatarToUser. userId: ${userId}, avatar.name: ${avatar.name}`);
+
+		const createAvatarResult = await Avatar.createAvatar({ avatar, transaction });
+		const userAvatar = await UserAvatar.query(transaction).insert({
+			[UserAvatar.columns.AVATAR_ID]: createAvatarResult.avatar.id,
+			[UserAvatar.columns.USER_ID]: userId
+		});
+
+		return { avatar: createAvatarResult.avatar, userAvatar };
+	}
+
+	public static async getActiveUserAvatarByUserId({
+		userId
+	}: {
+		userId: number;
+	}): Promise<UserAvatar | null> {
+		console.debug(`[UserAvatar] getActiveUserAvatarByUserId. userId: ${userId}`);
+
+		const usersAvatars = await UserAvatar.getUserAvatarByUserId({ userId });
+		const sortedByCreatedAtUsersAvatars = usersAvatars.sort(
+			(userAvatarOne, userAvatarTwo) => userAvatarTwo.createdAtTime - userAvatarOne.createdAtTime
+		);
+
+		return sortedByCreatedAtUsersAvatars[0] ?? null;
+	}
+
+	private static async getUserAvatarByUserId({
+		userId
+	}: {
+		userId: number;
+	}): Promise<UserAvatar[]> {
+		console.debug(`[UserAvatar] getUserAvatarByUserId. userId: ${userId}`);
+
+		return await UserAvatar.query().where(UserAvatar.columns.USER_ID, '=', userId);
 	}
 }

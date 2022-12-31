@@ -1,7 +1,19 @@
+import { AvatarService, type StaticFile } from '$lib/api/s3';
 import { DefaultAvatar } from '$passport/bd/models/default-avatars';
 import { PassportModel } from '$passport/bd/models/passport-model';
 import { User } from '$passport/bd/models/user';
 import { UserAvatar } from '$passport/bd/models/user-avatar';
+import type { Transaction } from 'objection';
+
+type CreateAvatar = {
+	avatar: File;
+	transaction: Transaction;
+};
+
+type CreateAvatarResult = {
+	avatar: Avatar;
+	files: StaticFile[];
+};
 
 export class Avatar extends PassportModel {
 	static tableName = 'avatars';
@@ -11,7 +23,8 @@ export class Avatar extends PassportModel {
 		ORIGINAL_NAME: 'originalName'
 	};
 
-	passwordHash!: string;
+	id!: number;
+	originalName!: string;
 
 	static jsonSchema = {
 		type: 'object',
@@ -57,5 +70,19 @@ export class Avatar extends PassportModel {
 				}
 			}
 		};
+	}
+
+	public static async createAvatar({
+		avatar,
+		transaction
+	}: CreateAvatar): Promise<CreateAvatarResult> {
+		console.debug(`[Avatar] createAvatar. avatar.name: ${avatar.name}`);
+
+		const newAvatar = await Avatar.query(transaction).insert({
+			[Avatar.columns.ORIGINAL_NAME]: avatar.name
+		});
+		const files = await AvatarService.uploadAvatar(newAvatar.id, avatar);
+
+		return { avatar: newAvatar, files };
 	}
 }
