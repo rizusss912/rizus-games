@@ -20,7 +20,15 @@
 	let focused = false;
 	
 	$: placeholderInInput = !value;
-	$: touched = value ? focused || touched : touched;
+	$: touched = getIsTouched(value);
+
+	function getIsTouched(_: string | null) {
+		if (focused) {
+			return true;
+		}
+
+		return touched;
+	}
 
 	function typeAction(node: HTMLInputElement) {
         node.type = type;

@@ -1,9 +1,13 @@
-<script lang="ts">
+<script lang="ts" context="module">
 	import BrowserTheme from '$lib/components/browser-theme.svelte';
 	import TabNavigation from '$lib/components/tab-navigation.svelte';
 	import Wallpaper from '$lib/wallpapers/wallpaper.svelte';
 
 	import 'normalize.css/normalize.css';
+</script>
+
+<script lang="ts">
+	console.log('render layout!', Date.now());
 </script>
 
 <slot />

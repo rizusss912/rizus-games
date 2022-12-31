@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+	import { page } from '$app/stores';
 	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
 	import InputText from '$lib/components/input-text.svelte';
 	import { fetchOrGetIsAlreadyBusyLogin, loginIsAlreadyBusyLoginMap, type LoginIsAlreadyBusyLoginMap } from '$lib/fetch/fetch-is-already-busy-login';
@@ -108,7 +109,7 @@
 		>
 		Зарегистрироваться
 	</Button>
-	<Button buttonTheme={ButtonTheme.link} buttonType={ButtonType.a} href="./login">
+	<Button buttonTheme={ButtonTheme.link} buttonType={ButtonType.a} href="./login?{$page.url.searchParams.toString()}">
 		Войти
 	</Button>
 </div>

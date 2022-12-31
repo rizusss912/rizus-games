@@ -1,5 +1,4 @@
 <script lang="ts" context="module">
-	import { page } from '$app/stores';
 	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
 	import InputText from '$lib/components/input-text.svelte';
 	import { fetchOrGetIsAlreadyBusyLogin, loginIsAlreadyBusyLoginMap, type LoginIsAlreadyBusyLoginMap } from '$lib/fetch/fetch-is-already-busy-login';
@@ -8,20 +7,17 @@
 	import {
 		LOGIN_MAX_LENGTH,
 		LOGIN_MIN_LENGTH,
-		PASSWORD_MAX_LENGTH,
-		PASSWORD_MIN_LENGTH
-	} from '../form.const';
+	} from '$passport/(forms)/form.const';
+	import { page } from '$app/stores';
 
 	const { getValidator } = jsonValidationFactory({
 		login: merge(...validators.login),
-		password: merge(...validators.password)
 	});
 </script>
 
 <script lang="ts">
 	const data = {
-		login: '',
-		password: ''
+		login: $page.data.userData.login,
 	}
 
 	const { onChange, errors, hasErrors } = formValidationFactory(data, getValidator);
@@ -31,10 +27,14 @@
 			return error;
 		}
 
+		if (login === $page.data.userData.login) {
+			return new FieldValidationError('совпадает с текущим', ['login']);
+		}
+
 		fetchOrGetIsAlreadyBusyLogin(login);
 
-		if (!loginIsAlreadyBusyLoginMap[login]) {
-			return new FieldValidationError('не существует', ['login']);
+		if (loginIsAlreadyBusyLoginMap[login]) {
+			return new FieldValidationError('уже занят', ['login']);
 		}
 
 		return  null;
@@ -45,7 +45,7 @@
 	type="text"
 	name="login"
 	id="login"
-	placeholder="Логин"
+	placeholder="новый логин"
 	autocomplete="username"
 	required
 	minlength={LOGIN_MIN_LENGTH}
@@ -55,27 +55,17 @@
 	on:change={onChange}
 	on:input={onChange}
 	/>
-<InputText
-	type="password"
-	name="password"
-	id="password"
-	placeholder="Пароль"
-	autocomplete="new-password"
-	minlength={PASSWORD_MIN_LENGTH}
-	maxlength={PASSWORD_MAX_LENGTH}
-	required
-	error={$errors.password}
-	bind:value={data.password}
-	on:change={onChange}
-	on:input={onChange}
-	/>
 
 <div class="actions">
-	<Button buttonTheme={ButtonTheme.primary} buttonType={ButtonType.input} type="submit" value="Войти" disabled={$hasErrors || Boolean(getLoginError(data.login, $errors.login, $loginIsAlreadyBusyLoginMap))}>
-		Войти
-	</Button>
-	<Button buttonTheme={ButtonTheme.link} buttonType={ButtonType.a} href="./registration?{$page.url.searchParams.toString()}">
-		Зарегистрироваться
+	<Button
+		buttonTheme={ButtonTheme.primary}
+		buttonType={ButtonType.input}
+		type="submit"
+		value="Войти"
+		formaction="?{$page.url.searchParams.toString()}"
+		disabled={$hasErrors || Boolean(getLoginError(data.login, $errors.login, $loginIsAlreadyBusyLoginMap))}
+		>
+		Сохранить
 	</Button>
 </div>
 

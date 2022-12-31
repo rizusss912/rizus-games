@@ -5,7 +5,7 @@ import cookieParser from 'set-cookie-parser';
 
 const DEFAULT_PASSPORT_REDIRECT = '/passport';
 
-function isUrl(url: string): boolean {
+export function isUrl(url: string): boolean {
 	try {
 		new URL(url);
 		return true;
@@ -28,7 +28,8 @@ export function getPassportOnAuthRedirect(event: RequestEvent): Redirect {
 export async function auth({
 	fetch,
 	request: { headers },
-	cookies
+	cookies,
+	url
 }: RequestEvent): Promise<AuthResult> {
 	const authResponse = await fetch('/passport/auth', { headers });
 	const cookie = authResponse.headers.get('Set-Cookie');
@@ -48,7 +49,10 @@ export async function auth({
 
 	if (authResponse.status === 403) {
 		console.debug(`[auth] ERROR 403. redirect to /passport/login`);
-		throw redirect(307, '/passport/login');
+
+		const params = new URLSearchParams({ [Param.INITIAOR]: url.toString() });
+
+		throw redirect(307, `/passport/login?${params.toString()}`);
 	}
 
 	throw error(authResponse.status, authResponse.statusText);

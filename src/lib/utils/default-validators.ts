@@ -61,7 +61,7 @@ export class MaxLength extends StringOnly {
 		super.validate(value);
 
 		if (value.length > this.maxLength) {
-			throw new ValidationError(`ограничение по колличеству символов: ${this.maxLength}`);
+			throw new ValidationError(`должно быть не более ${this.maxLength} символов`);
 		}
 	}
 }
@@ -79,7 +79,7 @@ export class MinLength extends StringOnly {
 		super.validate(value);
 
 		if (value.length < this.minLength) {
-			throw new ValidationError(`должно быть не меньше ${this.minLength}`);
+			throw new ValidationError(`должно быть не меньше ${this.minLength} символов`);
 		}
 	}
 }
