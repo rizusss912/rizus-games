@@ -1,7 +1,8 @@
 <script lang="ts" context="module">
 	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
 	import InputText from '$lib/components/input-text.svelte';
-	import { formValidationFactory, jsonValidationFactory, merge } from '$lib/utils/validation';
+	import { fetchOrGetIsAlreadyBusyLogin, loginIsAlreadyBusyLoginMap, type LoginIsAlreadyBusyLoginMap } from '$lib/fetch/fetch-is-already-busy-login';
+	import { FieldValidationError, formValidationFactory, jsonValidationFactory, merge } from '$lib/utils/validation';
 	import { validators } from '$passport/validators';
 	import {
 		LOGIN_MAX_LENGTH,
@@ -23,6 +24,20 @@
 	}
 
 	const { onChange, errors, hasErrors } = formValidationFactory(data, getValidator);
+
+	function getLoginError(login: string, error: FieldValidationError | null, loginIsAlreadyBusyLoginMap: LoginIsAlreadyBusyLoginMap) {
+		if (error) {
+			return error;
+		}
+
+		fetchOrGetIsAlreadyBusyLogin(login);
+
+		if (!loginIsAlreadyBusyLoginMap[login]) {
+			return new FieldValidationError('не существует', ['login']);
+		}
+
+		return  null;
+	}
 </script>
 
 <InputText
@@ -34,7 +49,7 @@
 	required
 	minlength={LOGIN_MIN_LENGTH}
 	maxlength={LOGIN_MAX_LENGTH}
-	error={$errors.login}
+	error={getLoginError(data.login, $errors.login, $loginIsAlreadyBusyLoginMap)}
 	bind:value={data.login}
 	on:change={onChange}
 	on:input={onChange}
@@ -55,7 +70,7 @@
 	/>
 
 <div class="actions">
-	<Button buttonTheme={ButtonTheme.primary} buttonType={ButtonType.input} type="submit" value="Войти" disabled={$hasErrors}>
+	<Button buttonTheme={ButtonTheme.primary} buttonType={ButtonType.input} type="submit" value="Войти" disabled={$hasErrors || Boolean(getLoginError(data.login, $errors.login, $loginIsAlreadyBusyLoginMap))}>
 		Войти
 	</Button>
 	<Button buttonTheme={ButtonTheme.link} buttonType={ButtonType.a} href="./registration">

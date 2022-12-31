@@ -9,6 +9,9 @@ export class DefaultAvatar extends PassportModel {
 		AVATAR_ID: 'avatarId'
 	};
 
+	id!: number;
+	avatarId!: number;
+
 	static jsonSchema = {
 		type: 'object',
 		required: Object.values([DefaultAvatar.columns.AVATAR_ID]),
@@ -33,5 +36,19 @@ export class DefaultAvatar extends PassportModel {
 				}
 			}
 		};
+	}
+
+	public static async getRundomDefaultAvatar(): Promise<DefaultAvatar | null> {
+		const allDefaultAvatars = await DefaultAvatar.getAllDefaultAvatars();
+
+		if (allDefaultAvatars.length === 0) {
+			return null;
+		}
+
+		return allDefaultAvatars[Math.floor(Math.random() * allDefaultAvatars.length)];
+	}
+
+	public static async getAllDefaultAvatars(): Promise<DefaultAvatar[]> {
+		return await DefaultAvatar.query();
 	}
 }

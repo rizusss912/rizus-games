@@ -9,6 +9,12 @@ type AddAvatarToUserData = {
 	transaction: Transaction;
 };
 
+type AddAvatarToUserByIdData = {
+	userId: number;
+	avatarId: number;
+	transaction: Transaction;
+};
+
 export class UserAvatar extends PassportModel {
 	static tableName = 'usersAvatars';
 	static idColumn = 'id';
@@ -57,6 +63,14 @@ export class UserAvatar extends PassportModel {
 				}
 			}
 		};
+	}
+
+	public static async addAvatarToUserById({
+		userId,
+		avatarId,
+		transaction
+	}: AddAvatarToUserByIdData): Promise<UserAvatar> {
+		return UserAvatar.query(transaction).insert({ userId, avatarId });
 	}
 
 	public static async addAvatarToUser({ userId, avatar, transaction }: AddAvatarToUserData) {

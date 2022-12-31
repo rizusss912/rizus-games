@@ -1,20 +1,16 @@
 <script lang="ts" context="module">
 	import Button, { ButtonTheme, ButtonType } from '$lib/components/button.svelte';
 	import InputText from '$lib/components/input-text.svelte';
-	import { fetchIsAlreadyBusyLogin } from '$lib/fetch/fetch-is-already-busy-login';
+	import { fetchOrGetIsAlreadyBusyLogin, loginIsAlreadyBusyLoginMap, type LoginIsAlreadyBusyLoginMap } from '$lib/fetch/fetch-is-already-busy-login';
 	import { FieldValidationError, formValidationFactory, jsonValidationFactory, merge } from '$lib/utils/validation';
 	import type { RegistraionFormData } from '$passport/(forms)/registration/+page.server';
 	import { validators } from '$passport/validators';
-	import { writable } from 'svelte/store';
 	import {
 		LOGIN_MAX_LENGTH,
 		LOGIN_MIN_LENGTH,
 		PASSWORD_MAX_LENGTH,
 		PASSWORD_MIN_LENGTH
 	} from '../form.const';
-
-	type LoginIsAlreadyBusyLoginPromiseMap = Record<string, Promise<boolean>>;
-	type LoginIsAlreadyBusyLoginMap = Record<string, boolean>;
 
 	const { getValidator } = jsonValidationFactory<RegistraionFormData>({
 		login: merge(...validators.login),
@@ -32,9 +28,6 @@
 
 	let passwordsMustMatchError: FieldValidationError | null = null;
 
-	const loginIsAlreadyBusyLoginMap = writable<LoginIsAlreadyBusyLoginMap>({});
-	const loginIsAlreadyBusyLoginPromiseMap = writable<LoginIsAlreadyBusyLoginPromiseMap>({});
-
 	const { onChange, errors, hasErrors } = formValidationFactory(data, getValidator);
 
 	function getLoginError(login: string, error: FieldValidationError | null, loginIsAlreadyBusyLoginMap: LoginIsAlreadyBusyLoginMap) {
@@ -42,10 +35,7 @@
 			return error;
 		}
 
-		if (!Boolean($loginIsAlreadyBusyLoginPromiseMap[login]) && login) {
-			$loginIsAlreadyBusyLoginPromiseMap[login] = fetchIsAlreadyBusyLogin(login);
-			$loginIsAlreadyBusyLoginPromiseMap[login].then(isAlreadyBusy => $loginIsAlreadyBusyLoginMap[login] = isAlreadyBusy);
-		}
+		fetchOrGetIsAlreadyBusyLogin(login);
 
 		if (loginIsAlreadyBusyLoginMap[login]) {
 			return new FieldValidationError('уже занят', ['login']);
