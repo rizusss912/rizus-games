@@ -13,12 +13,15 @@
 </script>
 
 <script lang="ts">
+	import Swap from "$lib/icons/swap.svelte";
+
     function enhanceUserFormHandler() {
         return async () => await invalidateAll();
     }
 
     function getAvatarChangeHref(userId: number, url: URL) {
         const searchParams = new URLSearchParams({ [Param.INITIAOR]: url.toString() });
+
         return `/passport/${userId}/avatar?${searchParams.toString()}`;
     }
 </script>
@@ -28,6 +31,9 @@
         <div class="avatar">
             <Button buttonType={ButtonType.a} buttonTheme={ButtonTheme.link} size={ButtonSize.none} href={getAvatarChangeHref($page.data.userData.id, $page.url)}>
                 <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} />
+                <div class="blackout">
+                    <Swap size={AvatarSize.xl / 2} />
+                </div>
             </Button>
         </div>
         <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
@@ -102,6 +108,33 @@
 
         cursor: pointer;
         overflow: hidden;
+    }
+
+    .blackout {
+        background-color: transparent;
+        opacity: 0;
+        transition: background-color, opacity, .3s ease-in-out;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar:hover .blackout,
+    .avatar:focus-within .blackout,
+    .avatar:active .blackout {
+        opacity: 1;
+        background-color: rgba(var(--background-color), .7);
+    }
+
+    .blackout {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+
+        pointer-events: none;
     }
 
     .user-form {
