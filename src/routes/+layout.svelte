@@ -6,10 +6,6 @@
 	import 'normalize.css/normalize.css';
 </script>
 
-<script lang="ts">
-	console.log('render layout!', Date.now());
-</script>
-
 <slot />
 
 <Wallpaper />
