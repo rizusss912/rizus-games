@@ -5,6 +5,7 @@
 	import { AvatarSize } from "$lib/enums/avatar-size";
     import FileDrop from "$lib/components/file-drop.svelte";
     import Download from "$lib/icons/download.svelte";
+	import { enhance } from "$app/forms";
 </script>
 
 <script lang="ts">
@@ -25,7 +26,7 @@
 
 <FileDrop bind:file />
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" use:enhance>
     <label class="avatar" for="avatar">
         <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} />
         {#if file}

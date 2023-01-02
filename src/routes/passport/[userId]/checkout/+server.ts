@@ -1,6 +1,6 @@
 import { AuthorizationService } from '$passport/authorization-service';
 import { PassportModel } from '$passport/bd/models/passport-model';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { RequestEvent, RequestHandler } from './$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 import { getPassportOnAuthRedirect } from '$passport/passport.utils';
@@ -21,7 +21,8 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 	const { userId, passiveUserIds } = await token.getActiveAndPassiveUserIds();
 
 	if (userId === newActiveUserId) {
-		throw getPassportOnAuthRedirect(event);
+		const { status, location } = getPassportOnAuthRedirect(event);
+		throw redirect(status, location);
 	}
 
 	if (!passiveUserIds.includes(newActiveUserId)) {
@@ -52,5 +53,6 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 
 	console.debug(`(POST) /passport/${event.params.userId}/checkout SUCCESS`);
 
-	throw getPassportOnAuthRedirect(event);
+	const { status, location } = getPassportOnAuthRedirect(event);
+	throw redirect(status, location);
 };

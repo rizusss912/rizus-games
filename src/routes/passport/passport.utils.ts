@@ -1,5 +1,11 @@
 import { Param } from '$lib/enums/param';
-import { error, redirect, type Redirect, type RequestEvent } from '@sveltejs/kit';
+import {
+	error,
+	redirect,
+	type ActionResult,
+	type Redirect,
+	type RequestEvent
+} from '@sveltejs/kit';
 import type { AuthResult } from '$passport/bd/models/token';
 import cookieParser from 'set-cookie-parser';
 
@@ -14,7 +20,7 @@ export function isUrl(url: string): boolean {
 	}
 }
 
-export function getPassportOnAuthRedirect(event: RequestEvent): Redirect {
+export function getPassportOnAuthRedirect(event: RequestEvent): ActionResult {
 	const initiator = event.url.searchParams.get(Param.INITIAOR);
 	const isInitiatorValid = !!initiator && isUrl(initiator);
 	const location = isInitiatorValid ? initiator : DEFAULT_PASSPORT_REDIRECT;
@@ -22,7 +28,8 @@ export function getPassportOnAuthRedirect(event: RequestEvent): Redirect {
 	console.debug(
 		`[getPassportOnAuthRedirect] on auth redirect to: ${initiator ?? 'default passport page'}`
 	);
-	return redirect(303, location);
+
+	return { type: 'redirect', location, status: 303 };
 }
 
 export async function auth({

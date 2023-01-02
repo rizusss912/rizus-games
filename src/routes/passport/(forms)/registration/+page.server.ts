@@ -125,6 +125,6 @@ export const actions: Actions = {
 			throw err;
 		}
 
-		throw getPassportOnAuthRedirect(event);
+		return getPassportOnAuthRedirect(event);
 	}
 };
