@@ -17,7 +17,7 @@
         buttonType={ButtonType.input}
         size={ButtonSize.m}
         type="submit"
-        formaction="passport/{userData.id}/checkout"
+        formaction="/passport/{userData.id}/checkout"
         >
         <div class="wrapper">
             <div class="main-info">
@@ -32,7 +32,7 @@
                     size={ButtonSize.none}
                     type="submit"
                     value="выйти"
-                    formaction="passport/loginout/{userData.id}"
+                    formaction="/passport/loginout/{userData.id}"
                     >
                     <Exit />
                 </Button>

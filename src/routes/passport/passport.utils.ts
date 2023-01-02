@@ -22,7 +22,7 @@ export function getPassportOnAuthRedirect(event: RequestEvent): Redirect {
 	console.debug(
 		`[getPassportOnAuthRedirect] on auth redirect to: ${initiator ?? 'default passport page'}`
 	);
-	return redirect(307, location);
+	return redirect(303, location);
 }
 
 export async function auth({

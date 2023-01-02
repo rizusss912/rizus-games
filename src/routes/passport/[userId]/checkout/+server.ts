@@ -3,6 +3,7 @@ import { PassportModel } from '$passport/bd/models/passport-model';
 import { error } from '@sveltejs/kit';
 import type { RequestEvent, RequestHandler } from './$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
+import { getPassportOnAuthRedirect } from '$passport/passport.utils';
 
 const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');
 
@@ -18,6 +19,10 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 	}
 
 	const { userId, passiveUserIds } = await token.getActiveAndPassiveUserIds();
+
+	if (userId === newActiveUserId) {
+		throw getPassportOnAuthRedirect(event);
+	}
 
 	if (!passiveUserIds.includes(newActiveUserId)) {
 		throw error(403, 'Не автризован');
@@ -47,5 +52,5 @@ export const POST: RequestHandler = async (event: RequestEvent) => {
 
 	console.debug(`(POST) /passport/${event.params.userId}/checkout SUCCESS`);
 
-	return new Response(null, { status: 200 });
+	throw getPassportOnAuthRedirect(event);
 };

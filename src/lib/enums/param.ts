@@ -1,3 +1,4 @@
 export enum Param {
-	INITIAOR = 'initiator'
+	INITIAOR = 'initiator',
+	CONTINUE_AS = 'continue-as'
 }

@@ -9,25 +9,28 @@ import { AnonymousAuth } from '$passport/bd/models/anonymous-auth';
 import { AuthorizationService } from '$passport/authorization-service';
 import { jsonValidationFactory, merge, type Json } from '$lib/utils/validation';
 import { validators } from '$passport/validators';
+import type { AuthResult } from '$passport/bd/models/token';
 
 interface AnonymousFormData extends Json {
 	login: string;
 }
 
 async function redirectToPasswordAuthIfHasAuth(event: RequestEvent) {
-	let authData;
+	let authResult: AuthResult;
 
 	try {
-		authData = await auth(event);
-	} catch {
-		return;
+		authResult = await auth(event);
+	} catch (e) {
+		return null;
 	}
 
-	if (authData.userData.authTypes.includes(AuthType.PASSWORD)) {
+	if (authResult.userData.authTypes.includes(AuthType.PASSWORD)) {
 		console.debug(`user has password auth. redirect to /passport/registration`);
 
 		throw redirect(307, '/passport/registration');
 	}
+
+	return authResult;
 }
 
 export const load: PageServerLoad = async (event: RequestEvent) => {
