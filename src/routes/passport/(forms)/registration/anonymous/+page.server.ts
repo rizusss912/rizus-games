@@ -1,14 +1,14 @@
 import { selectFormDataAndValidate } from '$lib/utils/form';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
-import { auth, getPassportOnAuthRedirect } from '../../../passport.utils';
+import { auth, getPassportOnAuthRedirect } from '$passport/passport.utils';
 import type { Actions } from './$types';
-import { PassportModel } from '../../../bd/models/passport-model';
+import { PassportModel } from '$passport/bd/models/passport-model';
 import { AuthType } from '$lib/enums/auth-type';
-import type { PageServerLoad } from '../$types';
-import { AnonymousAuth } from '../../../bd/models/anonymous-auth';
-import { AuthorizationService } from '../../../authorization-service';
+import type { PageServerLoad } from './$types';
+import { AnonymousAuth } from '$passport/bd/models/anonymous-auth';
+import { AuthorizationService } from '$passport/authorization-service';
 import { jsonValidationFactory, merge, type Json } from '$lib/utils/validation';
-import { validators } from '../../../validators';
+import { validators } from '$passport/validators';
 
 interface AnonymousFormData extends Json {
 	login: string;

@@ -1,6 +1,6 @@
-import { error, type HttpError } from '@sveltejs/kit';
-import { AuthorizationService } from '../../authorization-service';
-import { PassportModel } from '../../bd/models/passport-model';
+import { error } from '@sveltejs/kit';
+import { AuthorizationService } from '$passport/authorization-service';
+import { PassportModel } from '$passport/bd/models/passport-model';
 import type { RequestEvent, RequestHandler } from './$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 

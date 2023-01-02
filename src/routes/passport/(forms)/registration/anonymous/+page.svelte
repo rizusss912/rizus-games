@@ -3,7 +3,7 @@
 	import InputText from '$lib/components/input-text.svelte';
 	import { Required } from '$lib/utils/default-validators';
 	import { formValidationFactory, jsonValidationFactory } from '$lib/utils/validation';
-	import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../form.const';
+	import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '$passport/(forms)/form.const';
 
 	const { getValidator } = jsonValidationFactory({
 		login: new Required(),

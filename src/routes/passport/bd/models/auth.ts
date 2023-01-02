@@ -1,5 +1,5 @@
-import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../(forms)/form.const';
-import { PassportModel } from './passport-model';
+import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '$passport/(forms)/form.const';
+import { PassportModel } from '$passport/bd/models/passport-model';
 
 export class Auth extends PassportModel {
 	static columns = {
@@ -29,7 +29,7 @@ export class Auth extends PassportModel {
 		throw Error('must be implemented in heirs');
 	}
 
-    static async getAuthByLogin(login: string): Promise<Auth | null> {
+	static async getAuthByLogin(login: string): Promise<Auth | null> {
 		throw Error('must be implemented in heirs');
 	}
 }

@@ -1,6 +1,6 @@
-import type { RequestEvent } from '../(forms)/registration/anonymous/$types';
-import { AuthorizationService } from '../authorization-service';
-import { PassportModel } from '../bd/models/passport-model';
+import type { RequestEvent } from './$types';
+import { AuthorizationService } from '$passport/authorization-service';
+import { PassportModel } from '$passport/bd/models/passport-model';
 import { error, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async (event: RequestEvent) => {

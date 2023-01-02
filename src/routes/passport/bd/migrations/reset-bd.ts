@@ -1,11 +1,11 @@
 import type { Knex } from 'knex';
-import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../(forms)/form.const';
-import { AnonymousAuth } from '../models/anonymous-auth';
-import { Auth } from '../models/auth';
-import { PasswordAuth } from '../models/password-auth';
-import { Token, TokenType } from '../models/token';
-import { User } from '../models/user';
-import { UserToken } from '../models/user-token';
+import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '$passport/(forms)/form.const';
+import { AnonymousAuth } from '$passport/bd/models/anonymous-auth';
+import { Auth } from '$passport/bd/models/auth';
+import { PasswordAuth } from '$passport/bd/models/password-auth';
+import { Token, TokenType } from '$passport/bd/models/token';
+import { User } from '$passport/bd/models/user';
+import { UserToken } from '$passport/bd/models/user-token';
 import { Avatar } from '$passport/bd/models/avatar';
 import { UserAvatar } from '$passport/bd/models/user-avatar';
 import { DefaultAvatar } from '$passport/bd/models/default-avatars';

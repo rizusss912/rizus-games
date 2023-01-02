@@ -2,8 +2,8 @@ import { Cookies } from '$lib/enums/cookie';
 import { error, type RequestEvent } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import type { Transaction } from 'objection';
-import { Token, TokenType, type AuthResult, type TokenPayload } from './bd/models/token';
-import { User, type UserData } from './bd/models/user';
+import { Token, TokenType, type AuthResult, type TokenPayload } from '$passport/bd/models/token';
+import { User, type UserData } from '$passport/bd/models/user';
 import { env } from '$env/dynamic/private';
 
 const TOKEN_SECRET: Record<TokenType, string> = {

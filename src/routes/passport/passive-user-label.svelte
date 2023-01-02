@@ -2,12 +2,11 @@
 	import type { UserData } from "$passport/bd/models/user";
     import Button, { ButtonSize, ButtonTheme, ButtonType } from "$lib/components/button.svelte";
 	import Exit from "$lib/icons/exit.svelte";
+    import UserAvatar from "$lib/components/user-avatar.svelte";
+	import { AvatarSize } from "$lib/enums/avatar-size";
 </script>
 
 <script lang="ts">
-	import UserAvatar from "$lib/components/user-avatar.svelte";
-	import { AvatarSize } from "$lib/enums/avatar-size";
-
     export let userData: UserData;
 </script>
 

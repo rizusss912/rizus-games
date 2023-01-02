@@ -1,6 +1,6 @@
 import { Param } from '$lib/enums/param';
 import { error, redirect, type Redirect, type RequestEvent } from '@sveltejs/kit';
-import type { AuthResult } from './bd/models/token';
+import type { AuthResult } from '$passport/bd/models/token';
 import cookieParser from 'set-cookie-parser';
 
 const DEFAULT_PASSPORT_REDIRECT = '/passport';

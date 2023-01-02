@@ -2,11 +2,11 @@ import { AuthType } from '$lib/enums/auth-type';
 import type { Auth } from '$passport/bd/models/auth';
 import { Avatar } from '$passport/bd/models/avatar';
 import { UserAvatar } from '$passport/bd/models/user-avatar';
-import { AnonymousAuth } from './anonymous-auth';
-import { PassportModel } from './passport-model';
-import { PasswordAuth } from './password-auth';
-import { Token } from './token';
-import { UserToken } from './user-token';
+import { AnonymousAuth } from '$passport/bd/models/anonymous-auth';
+import { PassportModel } from '$passport/bd/models/passport-model';
+import { PasswordAuth } from '$passport/bd/models/password-auth';
+import { Token } from '$passport/bd/models/token';
+import { UserToken } from '$passport/bd/models/user-token';
 
 export type UserData = {
 	id: number;

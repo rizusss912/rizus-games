@@ -10,11 +10,10 @@
 	import Exit from "$lib/icons/exit.svelte";
     import Plus from "$lib/icons/plus.svelte";
 	import { Param } from "$lib/enums/param";
+    import Swap from "$lib/icons/swap.svelte";
 </script>
 
 <script lang="ts">
-	import Swap from "$lib/icons/swap.svelte";
-
     function enhanceUserFormHandler() {
         return async () => await invalidateAll();
     }

@@ -1,11 +1,11 @@
 import { selectFormDataAndValidate } from '$lib/utils/form';
 import { jsonValidationFactory, merge } from '$lib/utils/validation';
 import { error } from '@sveltejs/kit';
-import { AuthorizationService } from '../../authorization-service';
-import { PassportModel } from '../../bd/models/passport-model';
-import { PasswordAuth } from '../../bd/models/password-auth';
-import { getPassportOnAuthRedirect } from '../../passport.utils';
-import { validators } from '../../validators';
+import { AuthorizationService } from '$passport/authorization-service';
+import { PassportModel } from '$passport/bd/models/passport-model';
+import { PasswordAuth } from '$passport/bd/models/password-auth';
+import { auth, getPassportOnAuthRedirect } from '$passport/passport.utils';
+import { validators } from '$passport/validators';
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
 
 export type LoginFormData = {
@@ -14,6 +14,13 @@ export type LoginFormData = {
 };
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	console.debug(`GET /passport/login`);
+
+	try {
+		const authResult = await auth(event);
+		return authResult;
+	} catch (e) {
+		return null;
+	}
 };
 
 const { getValidator } = jsonValidationFactory<LoginFormData>({

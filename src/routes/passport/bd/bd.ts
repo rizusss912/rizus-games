@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
 import { knexSnakeCaseMappers } from 'objection';
-import { PassportModel } from './models/passport-model';
+import { PassportModel } from '$passport/bd/models/passport-model';
 import { env } from '$env/dynamic/private';
 
 let connectPassortBDPromise: Promise<Knex> | undefined;

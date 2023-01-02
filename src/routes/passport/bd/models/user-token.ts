@@ -1,6 +1,6 @@
-import { PassportModel } from './passport-model';
-import { Token } from './token';
-import { User } from './user';
+import { PassportModel } from '$passport/bd/models/passport-model';
+import { Token } from '$passport/bd/models/token';
+import { User } from '$passport/bd/models/user';
 
 export class UserToken extends PassportModel {
 	static tableName = 'usersTokens';

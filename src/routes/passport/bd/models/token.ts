@@ -1,8 +1,8 @@
 import type { JwtPayload } from 'jsonwebtoken';
 import type { Transaction } from 'objection';
-import { PassportModel } from './passport-model';
-import { User, type UserData } from './user';
-import { UserToken } from './user-token';
+import { PassportModel } from '$passport/bd/models/passport-model';
+import { User, type UserData } from '$passport/bd/models/user';
+import { UserToken } from '$passport/bd/models/user-token';
 
 export enum TokenType {
 	ACCESS = 'access',

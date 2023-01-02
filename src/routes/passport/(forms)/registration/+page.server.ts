@@ -8,13 +8,13 @@ import {
 	type JsonEndpointValue
 } from '$lib/utils/validation';
 import { error, type Actions } from '@sveltejs/kit';
-import { AuthorizationService } from '../../authorization-service';
-import { PassportModel } from '../../bd/models/passport-model';
-import { PasswordAuth } from '../../bd/models/password-auth';
-import { User } from '../../bd/models/user';
-import { getPassportOnAuthRedirect } from '../../passport.utils';
-import { validators } from '../../validators';
-import type { PageServerLoad } from './$types';
+import { AuthorizationService } from '$passport/authorization-service';
+import { PassportModel } from '$passport/bd/models/passport-model';
+import { PasswordAuth } from '$passport/bd/models/password-auth';
+import { User } from '$passport/bd/models/user';
+import { auth, getPassportOnAuthRedirect } from '$passport/passport.utils';
+import { validators } from '$passport/validators';
+import type { PageServerLoad, RequestEvent } from './$types';
 
 export type RegistraionFormData = {
 	login: string;
@@ -32,8 +32,15 @@ class UniqueLogin extends StringOnly {
 	}
 }
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event: RequestEvent) => {
 	console.debug(`(GET) /passport/registration`);
+
+	try {
+		const authResult = await auth(event);
+		return authResult;
+	} catch (e) {
+		return null;
+	}
 };
 
 const { getValidator } = jsonValidationFactory<RegistraionFormData>({

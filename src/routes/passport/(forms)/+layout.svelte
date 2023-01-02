@@ -27,7 +27,7 @@
 
 	.back-button {
 		position: absolute;
-		left: 15px;
+		left: 20px;
 		top: 30px;
 
 		transform: translate(-100%);

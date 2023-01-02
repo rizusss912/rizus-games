@@ -1,7 +1,7 @@
 import { AuthorizationService } from '$passport/authorization-service';
 import { PassportModel } from '$passport/bd/models/passport-model';
 import { error } from '@sveltejs/kit';
-import type { RequestEvent, RequestHandler } from './[userId]/$types';
+import type { RequestEvent, RequestHandler } from './$types';
 import { parseIntOrThrowError } from '$lib/utils/asserts';
 
 const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');

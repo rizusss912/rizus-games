@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
-import type { RequestEvent } from '../(forms)/registration/anonymous/$types';
-import { AuthorizationService } from '../authorization-service';
-import { PassportModel } from '../bd/models/passport-model';
+import type { RequestEvent } from './$types';
+import { AuthorizationService } from '$passport/authorization-service';
+import { PassportModel } from '$passport/bd/models/passport-model';
 import { Cookies } from '$lib/enums/cookie';
 
 export const POST: RequestHandler = async (event: RequestEvent) => {

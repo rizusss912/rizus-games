@@ -9,7 +9,7 @@ import {
 import { auth, isUrl } from '$passport/passport.utils';
 import { validators } from '$passport/validators';
 import { error, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad, RequestEvent } from '../$types';
+import type { PageServerLoad, RequestEvent } from './$types';
 import { PasswordAuth } from '$passport/bd/models/password-auth';
 import { StringOnly } from '$lib/utils/default-validators';
 import { Param } from '$lib/enums/param';

@@ -1,6 +1,6 @@
 import type { Transaction } from 'objection';
-import { Auth } from './auth';
-import { User } from './user';
+import { Auth } from '$passport/bd/models/auth';
+import { User } from '$passport/bd/models/user';
 
 type CreateUserWithAnonymousAuthData = {
 	transaction: Transaction;
