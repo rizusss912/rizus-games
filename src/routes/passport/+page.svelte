@@ -1,61 +1,35 @@
 <script lang="ts" context="module">
     import { enhance } from "$app/forms";
-	import { invalidate, invalidateAll } from "$app/navigation";
+	import { invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
-	import Button, { ButtonTheme, ButtonType } from "$lib/components/button.svelte";
+	import Button, { ButtonSize, ButtonTheme, ButtonType } from "$lib/components/button.svelte";
 	import LoginLabel from "$passport/login-label.svelte";
 	import PassiveUsersLabelsList from "$passport/passive-users-labels-list.svelte";
-	import type { SubmitFunction } from "@sveltejs/kit";
-	import { onMount } from "svelte";
     import UserAvatar from "$lib/components/user-avatar.svelte";
 	import { AvatarSize } from "$lib/enums/avatar-size";
 	import Exit from "$lib/icons/exit.svelte";
     import Plus from "$lib/icons/plus.svelte";
+	import { Param } from "$lib/enums/param";
 </script>
 
 <script lang="ts">
-    let jsIsActive = false;
-
-    let askForAnAvatarAgain: () => void;
-
     function enhanceUserFormHandler() {
         return async () => await invalidateAll();
     }
 
-    const enhanceAvatarHandler: SubmitFunction = ({form}: {form: HTMLFormElement}) => {
-        return async () => {
-            await invalidate($page.url);
-            form.reset();
-            askForAnAvatarAgain();
-        };
+    function getAvatarChangeHref(userId: number, url: URL) {
+        const searchParams = new URLSearchParams({ [Param.INITIAOR]: url.toString() });
+        return `/passport/${userId}/avatar?${searchParams.toString()}`;
     }
-
-    const handleChangeForm: FormEventHandler<HTMLFormElement> = (event: FormDataEvent) => {
-        if (event.target!.value) {
-            event.currentTarget?.dispatchEvent(new CustomEvent('submit'));
-        }
-    }
-
-    onMount(() => jsIsActive = true)
 </script>
 
 <div class="wrapper">
     <main>
-        <form on:change={handleChangeForm} method="POST" action="passport/avatar/{$page.data.userData.id}" enctype="multipart/form-data" use:enhance={enhanceAvatarHandler}>
-            <label class="avatar-label" for="avatar">
-                <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} bind:askForAnAvatarAgain />
-            </label>
-            <input
-                type="file"
-                id="avatar"
-                name="avatar"
-                class="avatar-input"
-                class:hide-save-button={jsIsActive}
-                accept="image/*, .jpg, .jpeg, .png, .webp"
-                required
-                />
-            <Button buttonType={ButtonType.input} type="submit" value="Сохранить аватар">Сохранить аватар</Button>
-        </form>
+        <div class="avatar">
+            <Button buttonType={ButtonType.a} buttonTheme={ButtonTheme.link} size={ButtonSize.none} href={getAvatarChangeHref($page.data.userData.id, $page.url)}>
+                <UserAvatar userData={$page.data.userData} size={AvatarSize.xl} />
+            </Button>
+        </div>
         <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
             <LoginLabel userData={$page.data.userData} />
             <PassiveUsersLabelsList passiveUsersData={$page.data.passiveUsersData} />
@@ -103,7 +77,7 @@
         align-items: center;
         gap: 8px;
 
-        background-color: var(--background-color);
+        background-color: rgba(var(--background-color));
 
         margin: calc(var(--avatar-offset) + 50px) 50px 50px 50px;
         padding: var(--avatar-offset) 16px 16px 16px;
@@ -112,7 +86,7 @@
         border-radius: 16px;
     }
 
-    .avatar-label {
+    .avatar {
         position: absolute;
         top: 0;
         left: 50%;
@@ -123,20 +97,11 @@
 
         transform: translate(-50%, calc(var(--avatar-offset) * -1));
 
-        border: 16px solid var(--background-color);
-        background: var(--background-color);
+        border: 16px solid rgba(var(--background-color));
+        background: rgba(var(--background-color));
 
         cursor: pointer;
         overflow: hidden;
-    }
-    
-    .avatar-input {
-        display: none;
-    }
-
-    .avatar-input.hide-save-button ~ :global(*),
-    .avatar-input:invalid ~ :global(*) {
-        display: none;
     }
 
     .user-form {

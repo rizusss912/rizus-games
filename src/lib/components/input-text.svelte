@@ -110,7 +110,7 @@
 		outline: none;
 		border: none;
 
-		background-color: var(--background-color);
+		background-color: rgba(var(--background-color));
 		color: var(--main-text-color);
 
 		padding: 10px 0;

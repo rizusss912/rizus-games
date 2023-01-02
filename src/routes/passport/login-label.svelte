@@ -15,7 +15,7 @@
     function getChangeLoginHref(userId: number, url: URL) {
         const actionSeachParams = new URLSearchParams({ [Param.INITIAOR]: url.toString() });
 
-        return `passport/login/${userId}?${actionSeachParams.toString()}`;
+        return `passport/${userId}/login?${actionSeachParams.toString()}`;
     }
 
     function enhanceLoginFormHandler() {

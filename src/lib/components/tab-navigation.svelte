@@ -19,7 +19,7 @@
 
 <style global>
     :global(body.tabnav) :global(*):focus {
-        box-shadow: 0 0 0 2px var(--background-color), 0 0 0 4px var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(var(--background-color)), 0 0 0 4px var(--primary-color);
     }
 
     :global(*):focus {

@@ -22,7 +22,7 @@
 		padding: 32px;
 		border-radius: 12px;
 
-		background-color: var(--background-color);
+		background-color: rgba(var(--background-color));
 	}
 
 	form {

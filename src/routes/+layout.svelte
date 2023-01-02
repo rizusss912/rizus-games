@@ -18,7 +18,7 @@
 
 <style>
 	:root {
-		--background-color: white;
+		--background-color: 255, 255, 255;
 		--main-text-color: #161617;
 		--primary-color: #2077f0;
 		--primary-text-color: white;
@@ -35,7 +35,7 @@
 
 	@media (prefers-color-scheme: dark) {
 		:root {
-			--background-color: #161617;
+			--background-color: 22, 22, 23;
 			--main-text-color: #e5e5e5;
 			--secondary-text-color: rgba(181, 181, 181, 0.8);
 		}

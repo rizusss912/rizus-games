@@ -26,14 +26,20 @@
     export let buttonType: ButtonType = ButtonType.button;
     export let buttonTheme: ButtonTheme = ButtonTheme.primary;
     export let size: ButtonSize | null = ButtonSize.m;
-    export let type: string | null = null;
+    export let type: 'submit' | 'file' | null = null;
     export let value: string | null = null;
     export let formaction: string | null = null;
     export let formmethod: string | null = null;
     export let href: string | null = null;
     export let disabled = false;
+    export let accept: string | null = null;
+    export let id: string = String(browser ? Math.random() * 1000 : crypto.randomUUID());
+    export let name: string | null = null;
+    export let file: File | null = null;
 
-    const id = browser ? Math.random() * 1000 : crypto.randomUUID();
+    let input: HTMLInputElement | null = null;
+
+    $: fileChangeHandler(file);
 
     function getElementName(buttonType: ButtonType) {
         const elementNameMap: Record<ButtonType, string> = {
@@ -44,11 +50,34 @@
 
         return elementNameMap[buttonType];
     }
+
+    function fileChangeHandler(file: File | null) {
+        if (!input) {
+            return;
+        }
+
+        if (input.files?.[0] ?? null === file) {
+            return;
+        }
+
+        let container = new DataTransfer();
+
+        container.items.add(file);
+        input.files = container.files;
+    }
+
+    function changeHandler(event: Event) {
+        if (type !== 'file') {
+            return;
+        }
+
+        file = input.files?.[0] ?? null;
+    }
 </script>
 
 <svelte:element this={getElementName(buttonType)} class="button {buttonTheme} {size}" {href} for={id} {disabled}>
     {#if buttonType === ButtonType.input}
-        <input {type} {value} {formmethod} {formaction} {id} {disabled} />
+        <input {type} {value} {formmethod} {formaction} {id} {disabled} {name} on:change={changeHandler} bind:this={input} />
     {/if}
     <slot />
 </svelte:element>
@@ -73,6 +102,8 @@
         left: 0;
         top: 0;
 
+        font-size: 0;
+        content-visibility: hidden;
         background: transparent;
         color: transparent;
         border: none;

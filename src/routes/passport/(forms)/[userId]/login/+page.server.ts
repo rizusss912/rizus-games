@@ -9,7 +9,7 @@ import {
 import { auth, isUrl } from '$passport/passport.utils';
 import { validators } from '$passport/validators';
 import { error, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad, RequestEvent } from './$types';
+import type { PageServerLoad, RequestEvent } from '../$types';
 import { PasswordAuth } from '$passport/bd/models/password-auth';
 import { StringOnly } from '$lib/utils/default-validators';
 import { Param } from '$lib/enums/param';
@@ -22,7 +22,7 @@ export type LoginFormData = {
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	const userIdInParams = event.params.userId;
 
-	console.debug(`(GET) /passport/login/${userIdInParams}`);
+	console.debug(`(GET) /passport/${userIdInParams}/login`);
 
 	const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');
 	const changeableUserId = parseIntOrThrowError(userIdInParams, invalidUserIdError);
@@ -54,7 +54,7 @@ export const actions: Actions = {
 	default: async function (event) {
 		const userIdInParams = event.params.userId;
 
-		console.debug(`(POST) /passport/login/${userIdInParams}`);
+		console.debug(`(POST) /passport/${userIdInParams}/login`);
 
 		const invalidUserIdError = error(404, 'Неверный идентификатор пользователя');
 		const changeableUserId = parseIntOrThrowError(userIdInParams, invalidUserIdError);

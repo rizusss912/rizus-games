@@ -6,16 +6,10 @@
 <script lang="ts">
     export let userData: UserData;
     export let size: AvatarSize;
-
-    let avatarTimestempForReloadPicture: number = Date.now();
-
-    export function askForAnAvatarAgain() {
-        avatarTimestempForReloadPicture = Date.now();
-    }
 </script>
 
 <img
-    src="passport/avatar/{userData.id}/{size}/{avatarTimestempForReloadPicture}"
+    src="/passport/{userData.id}/avatar/{size}"
     width={size}
     height={size}
     alt="{userData.login} avatar"

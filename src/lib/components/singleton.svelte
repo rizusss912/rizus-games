@@ -11,6 +11,7 @@
 <script lang="ts">
     export let component: SvelteComponent;
     export let id: string;
+    export let size: number;
 
     let lastId: string | null = null;
 
@@ -39,7 +40,7 @@
 </script>
 
 {#if isFirst}
-    <svelte:component this={component} {id} />
+    <svelte:component this={component} {id} {size} />
 {:else}
     <slot />
 {/if}
