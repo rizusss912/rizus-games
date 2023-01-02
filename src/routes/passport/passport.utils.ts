@@ -20,7 +20,7 @@ export function isUrl(url: string): boolean {
 	}
 }
 
-export function getPassportOnAuthRedirect(event: RequestEvent): ActionResult {
+export function getPassportOnAuthRedirect(event: RequestEvent) {
 	const initiator = event.url.searchParams.get(Param.INITIAOR);
 	const isInitiatorValid = !!initiator && isUrl(initiator);
 	const location = isInitiatorValid ? initiator : DEFAULT_PASSPORT_REDIRECT;
@@ -29,7 +29,7 @@ export function getPassportOnAuthRedirect(event: RequestEvent): ActionResult {
 		`[getPassportOnAuthRedirect] on auth redirect to: ${initiator ?? 'default passport page'}`
 	);
 
-	return { type: 'redirect', location, status: 303 };
+	throw redirect(303, location);
 }
 
 export async function auth({

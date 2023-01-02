@@ -58,7 +58,7 @@ const { getValidator } = jsonValidationFactory<AvatarFormData>({
 });
 
 export const actions: Actions = {
-	default: async function (event: RequestEvent): Promise<ActionResult> {
+	default: async function (event: RequestEvent) {
 		const userIdInParams = event.params.userId;
 
 		console.debug(`(POST) /passport/${userIdInParams}/avatar`);
@@ -88,6 +88,6 @@ export const actions: Actions = {
 			throw redirect(307, initiator);
 		}
 
-		return { type: 'success', status: 200 };
+		return;
 	}
 };

@@ -19,7 +19,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 		const authResult = await auth(event);
 		return authResult;
 	} catch (e) {
-		return null;
+		return {};
 	}
 };
 
@@ -84,6 +84,6 @@ export const actions: Actions = {
 			throw err;
 		}
 
-		return getPassportOnAuthRedirect(event);
+		throw getPassportOnAuthRedirect(event);
 	}
 };

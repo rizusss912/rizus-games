@@ -21,7 +21,7 @@ async function redirectToPasswordAuthIfHasAuth(event: RequestEvent) {
 	try {
 		authResult = await auth(event);
 	} catch (e) {
-		return null;
+		return {};
 	}
 
 	if (authResult.userData.authTypes.includes(AuthType.PASSWORD)) {
@@ -70,6 +70,6 @@ export const actions: Actions = {
 			throw err;
 		}
 
-		return getPassportOnAuthRedirect(event);
+		throw getPassportOnAuthRedirect(event);
 	}
 };

@@ -3,7 +3,6 @@
 	import type { UserData } from "$passport/bd/models/user";
     import Exit from "$lib/icons/exit.svelte";
 	import Edit from "$lib/icons/edit.svelte";
-	import { invalidateAll } from "$app/navigation";
 	import { enhance } from "$app/forms";
 	import { Param } from "$lib/enums/param";
 	import { page } from "$app/stores";
@@ -17,15 +16,9 @@
 
         return `passport/${userId}/login?${actionSeachParams.toString()}`;
     }
-
-    function enhanceLoginFormHandler() {
-        return async () => {
-            await invalidateAll();
-        }
-    }
 </script>
 
-<form class="login" use:enhance={enhanceLoginFormHandler} method="POST">
+<form class="login" use:enhance method="POST">
         <h2>{userData.login}</h2>
         <div class="actions">
             <Button buttonType={ButtonType.a} buttonTheme={ButtonTheme.transparent} size={ButtonSize.none} href="{getChangeLoginHref(userData.id, $page.url)}">

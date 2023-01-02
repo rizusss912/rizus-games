@@ -2,19 +2,29 @@
 	import { page } from "$app/stores";
 	import { Param } from "$lib/enums/param";
     import type { AuthResult } from "$passport/bd/models/token";
+	import type { UserData } from "$passport/bd/models/user";
     import PassiveUsersLabelsList from "$passport/passive-users-labels-list.svelte";
 </script>
 
 <script lang="ts">
-    export let authResult: AuthResult | null;
-    export let skipped = getSkipped($page.url);
+    export let authResult: Partial<AuthResult>;
     export let skipContinueAsLink = getSkipContinueAsLink($page.url);
+    export let skipped = getSkipped($page.url, getUsersData(authResult));
 
-    $: skipped = getSkipped($page.url);
     $: skipContinueAsLink = getSkipContinueAsLink($page.url);
+    $: usersData = getUsersData(authResult);
+    $: skipped = getSkipped($page.url, usersData);
 
-    export function getSkipped(url: URL) {
-        if (!authResult) {
+    export function getUsersData({passiveUsersData, userData}: Partial<AuthResult>) {
+        if (!passiveUsersData?.length && !userData) {
+            return null;
+        }
+
+        return (userData ? [userData] : []).concat(passiveUsersData ?? []);
+    }
+
+    export function getSkipped(url: URL, usersData: UserData[] | null) {
+        if (!usersData) {
             return true;
         }
 
@@ -29,9 +39,9 @@
     }
 </script>
 
-{#if !skipped && authResult}
+{#if !skipped && usersData}
     <p> продолжить как: </p>
-    <PassiveUsersLabelsList passiveUsersData={[authResult.userData, ...authResult.passiveUsersData]} />
+    <PassiveUsersLabelsList passiveUsersData={usersData} />
 {:else}
     <slot />
 {/if}

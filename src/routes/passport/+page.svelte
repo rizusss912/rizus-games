@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
     import { enhance } from "$app/forms";
-	import { invalidateAll } from "$app/navigation";
 	import { page } from "$app/stores";
 	import Button, { ButtonSize, ButtonTheme, ButtonType } from "$lib/components/button.svelte";
 	import LoginLabel from "$passport/login-label.svelte";
@@ -14,10 +13,6 @@
 </script>
 
 <script lang="ts">
-    function enhanceUserFormHandler() {
-        return async () => await invalidateAll();
-    }
-
     function getAvatarChangeHref(userId: number, url: URL) {
         const searchParams = new URLSearchParams({ [Param.INITIAOR]: url.toString() });
 
@@ -35,7 +30,7 @@
                 </div>
             </Button>
         </div>
-        <form class="user-form" use:enhance={enhanceUserFormHandler} method="POST">
+        <form class="user-form" method="POST" use:enhance>
             <LoginLabel userData={$page.data.userData} />
             <PassiveUsersLabelsList passiveUsersData={$page.data.passiveUsersData} />
 
@@ -43,7 +38,7 @@
                 <Button
                 buttonType={ButtonType.a}
                 buttonTheme={ButtonTheme.transparent}
-                href="passport/login"
+                href="passport/login?{Param.CONTINUE_AS}=skipped"
                 >
                     <Plus />
                     добавить аккаунт

@@ -1,4 +1,5 @@
 <script lang="ts" context="module">
+	import { enhance } from "$app/forms";
 	import BackButton from "$lib/components/back-button.svelte";
 </script>
 
@@ -7,7 +8,7 @@
 		<div class="back-button">
 			<BackButton />
 		</div>
-		<form method="POST">
+		<form method="POST" use:enhance>
 			<slot />
 		</form>
 	</main>

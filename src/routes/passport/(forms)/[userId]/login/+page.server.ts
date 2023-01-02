@@ -92,6 +92,6 @@ export const actions: Actions = {
 			throw redirect(307, initiator);
 		}
 
-		return { type: 'success', status: 200 };
+		return { susses: true };
 	}
 };
